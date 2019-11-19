@@ -185,8 +185,8 @@ public class SpinnableModel<Handle: View>: ObservableObject, RotationModel {
     
     // MARK: Overlay
     
-    public var overlay: AnyView {
-        AnyView(ZStack {
+    public var overlay: some View {
+        ZStack {
             handle(isSelected, (gestureState as! SpinState).isActive)
         }.offset(rotationalOffset)
             .gesture(
@@ -206,7 +206,7 @@ public class SpinnableModel<Handle: View>: ObservableObject, RotationModel {
                         }
                         self.gestureState = SpinState.inactive
                     })
-        ))
+        )
     }
     
     

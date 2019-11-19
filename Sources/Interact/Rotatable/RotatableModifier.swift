@@ -48,13 +48,7 @@ public struct Rotatable<Handle: View>: ViewModifier {
         content
             .rotationEffect(Angle(radians: Double(currentAngle)))
             .gesture(rotationGestureModel.rotationGesture)
-            .overlay(
-                GeometryReader { proxy in
-                    ZStack {
-                        self.rotationModel.overlay
-                    }
-                }
-        )
+            .overlay(self.rotationModel.overlay)
             .onTapGesture {
                 withAnimation(.easeIn(duration: 0.2)) {
                     self.rotationModel.isSelected = !self.rotationModel.isSelected

@@ -25,7 +25,7 @@ public struct GestureDependencyBuffer<Modifier: ViewModifier>: ViewModifier {
     
     var modifier: (Binding<CGSize>, Binding<CGSize>, Binding<CGFloat>, Binding<CGSize>, Binding<CGSize>, Binding<CGSize>, Binding<CGSize>,  Binding<CGFloat>, Binding<CGFloat>, Binding<Bool>) -> Modifier
     
-    public init(initialSize: CGSize, modifier: @escaping (Binding<CGSize>, Binding<CGSize>, Binding<CGFloat>, Binding<CGSize>, Binding<CGSize>, Binding<CGSize>, Binding<CGSize>,  Binding<CGFloat>, Binding<CGFloat>, Binding<Bool>) -> Modifier) {
+    public init(initialSize: CGSize, modifier: @escaping (_ offset: Binding<CGSize>, _ size: Binding<CGSize>, _ magnification: Binding<CGFloat>, _ topLeadingState: Binding<CGSize>, _ bottomLeadingState: Binding<CGSize>, _ topTrailingState: Binding<CGSize>, _ bottomTrailingState: Binding<CGSize>,  _ angle: Binding<CGFloat>, _ rotation: Binding<CGFloat>, _ isSelected: Binding<Bool>) -> Modifier) {
         
         self.modifier = modifier
         self.size = initialSize

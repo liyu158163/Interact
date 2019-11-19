@@ -18,10 +18,13 @@ public protocol RotationOverlayState {
 
 @available(iOS 13.0, macOS 10.15, watchOS 6.0 , tvOS 13.0, *)
 public protocol RotationModel: ObservableObject {
+   
+    
     var angle: CGFloat { get set }
     var gestureState: RotationOverlayState { get set }
     var isSelected: Bool { get set }
-    var overlay: AnyView { get }
+    associatedtype Overlay: View
+    var overlay: Overlay { get }
 }
 
 

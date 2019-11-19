@@ -51,10 +51,7 @@ public struct Spinnable<Handle: View>: ViewModifier {
         content
             .rotationEffect(Angle(radians: Double(currentAngle)))
             .gesture(rotationGestureModel.rotationGesture)
-            .overlay(
-               ZStack {
-                   self.spinModel.overlay
-               })
+            .overlay(self.spinModel.overlay)
             .onTapGesture {
                 withAnimation(.easeIn(duration: 0.2)) {
                     self.spinModel.isSelected.toggle()

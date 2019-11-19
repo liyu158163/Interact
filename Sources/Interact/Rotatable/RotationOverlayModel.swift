@@ -111,8 +111,8 @@ public class RotationOverlayModel<Handle: View>: ObservableObject, RotationModel
        }
     
     
-    public var overlay: AnyView {
-        AnyView(ZStack {
+    public var overlay: some View {
+        ZStack {
             handle(isSelected, (gestureState as! RotationState).isActive)
         }
         .offset(rotationalOffset)
@@ -127,7 +127,7 @@ public class RotationOverlayModel<Handle: View>: ObservableObject, RotationModel
                     self.angle += self.calculateDeltaTheta(translation: value.translation)
                     self.gestureState = RotationState.inactive
                 })
-        ))
+        )
     }
     
     
