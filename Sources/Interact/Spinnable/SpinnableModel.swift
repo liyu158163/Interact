@@ -16,11 +16,15 @@ public class SpinnableModel<Handle: View>: ObservableObject, RotationModel {
     
     // MARK: State
     var model: AngularVelocityModel
+    @Binding public var size: CGSize
+    @Binding public var magnification: CGFloat
     /// This is kind of like the angular equivalent of a draggable view's `offset`.
     @Binding public var angle: CGFloat
+    @Binding public var rotation: CGFloat
     /// Describes the angular drag state of the rotation handle. 
     @Published public var gestureState: RotationOverlayState = SpinState.inactive
     @Binding public var isSelected: Bool
+    
     /// Value describing the distance from the top of the view to the rotation handle.
     var radialOffset: CGFloat = 50
     /// Value used to scale down the velocity of a drag.
@@ -92,23 +96,24 @@ public class SpinnableModel<Handle: View>: ObservableObject, RotationModel {
         model.angularVelocity = (gestureState as! SpinState).angularVelocity
     }
     
+    var radius: CGFloat {
+        return size.height/2 + radialOffset
+    }
+    
     
     // MARK: Calculations
     
-    /// Returns the radius of  rotation
-   public  func calculateRadius(proxy: GeometryProxy) -> CGFloat {
-        return proxy.size.height/2 + radialOffset
-    }
+   
     
     // The Y component of the bottom handles should not affect the offset of the rotation handle
     // The Y component of the top handles are doubled to compensate.
     // All X components contribute half of their value.
-    public func calculateRotationalOffset(proxy: GeometryProxy, rotationGestureState: CGFloat = 0, magnification: CGFloat = 1, dragWidths: CGFloat = 0, dragTopHeights: CGFloat = 0) -> CGSize {
+    public func calculateRotationalOffset(dragWidths: CGFloat = 0, dragTopHeights: CGFloat = 0) -> CGSize {
         
-        let angles = angle + gestureState.deltaTheta + rotationGestureState
+        let angles = angle + gestureState.deltaTheta + rotation
         
-        let rX = sin(angles)*(calculateRadius(proxy: proxy) - (1-magnification)*proxy.size.width/2)
-        let rY = -cos(angles)*(calculateRadius(proxy: proxy) - (1-magnification)*proxy.size.height/2)
+        let rX = sin(angles)*(radius - (1-magnification)*size.width/2)
+        let rY = -cos(angles)*(radius - (1-magnification)*size.height/2)
         let x =   rX + cos(angle)*dragWidths/2 - sin(angle)*dragTopHeights
         let y =   rY + cos(angle)*dragTopHeights + sin(angle)*dragWidths/2
         
@@ -116,7 +121,7 @@ public class SpinnableModel<Handle: View>: ObservableObject, RotationModel {
     }
     
     /// Returns the change of angle from the dragging the handle
-    public func calculateDeltaTheta(radius: CGFloat, translation: CGSize) -> CGFloat {
+    public func calculateDeltaTheta(translation: CGSize) -> CGFloat {
         
         let lastX = radius*sin(angle)
         let lastY = -radius*cos(angle)
@@ -131,13 +136,13 @@ public class SpinnableModel<Handle: View>: ObservableObject, RotationModel {
     }
     
     /// Calculates the angular velocity of the rotational drag
-    public func calculateDragAngularVelocity(proxy: GeometryProxy, value: DragGesture.Value) -> CGFloat {
+    public func calculateDragAngularVelocity(value: DragGesture.Value) -> CGFloat {
         
         if (self.gestureState as! SpinState).time == nil {
             return 0
         }
-        let radius = calculateRadius(proxy: proxy)
-        let deltaA = self.calculateDeltaTheta(radius: radius, translation: value.translation)-self.gestureState.deltaTheta
+        
+        let deltaA = self.calculateDeltaTheta(translation: value.translation)-self.gestureState.deltaTheta
         let deltaT = CGFloat((self.gestureState as! SpinState).time!.timeIntervalSince(value.time))
         let aV = -vScale*deltaA/deltaT
         
@@ -168,22 +173,21 @@ public class SpinnableModel<Handle: View>: ObservableObject, RotationModel {
     
     // MARK: Overlay
     
-    public func getOverlay(proxy: GeometryProxy, rotationGestureState: CGFloat = 0, magnification: CGFloat = 1, dragWidths: CGFloat = 0, dragTopHeights: CGFloat = 0) -> AnyView {
+    public func getOverlay(dragWidths: CGFloat = 0, dragTopHeights: CGFloat = 0) -> AnyView {
         AnyView(ZStack {
             handle(isSelected, (gestureState as! SpinState).isActive)
-        }.offset(calculateRotationalOffset(proxy: proxy, rotationGestureState: rotationGestureState, magnification: magnification, dragWidths: dragWidths, dragTopHeights: dragTopHeights))
+        }.offset(calculateRotationalOffset(dragWidths: dragWidths, dragTopHeights: dragTopHeights))
             .gesture(
                 DragGesture()
                     .onChanged({ (value) in
                         self.reset()
-                        let radius = self.calculateRadius(proxy: proxy)
-                        let deltaTheta = self.calculateDeltaTheta(radius: radius, translation: value.translation)
-                        let angularVelocity = self.calculateDragAngularVelocity(proxy: proxy, value: value)
+                        let deltaTheta = self.calculateDeltaTheta(translation: value.translation)
+                        let angularVelocity = self.calculateDragAngularVelocity(value: value)
                         self.gestureState = SpinState.active(translation: value.translation, time: value.time, deltaTheta: deltaTheta, angularVelocity: angularVelocity)
                     })
                     .onEnded({ (value) in
-                        let radius = self.calculateRadius(proxy: proxy)
-                        self.angle += self.calculateDeltaTheta(radius: radius, translation: value.translation)
+                        
+                        self.angle += self.calculateDeltaTheta(translation: value.translation)
                         if abs( (self.gestureState as! SpinState).angularVelocity ) > self.threshold {
                             self.start()
                             self.setVelocity()
@@ -196,8 +200,20 @@ public class SpinnableModel<Handle: View>: ObservableObject, RotationModel {
     
     // MARK: Init
     
-    public init(angle: Binding<CGFloat>, isSelected: Binding<Bool>, model: AngularVelocityModel = AngularVelocity(), threshold: CGFloat = 0, handle: @escaping (_ isSelected: Bool, _ isActive: Bool) -> Handle) {
+    public init(size: Binding<CGSize>,
+                magnification: Binding<CGFloat>,
+                angle: Binding<CGFloat>,
+                rotation: Binding<CGFloat>,
+                isSelected: Binding<Bool>,
+                model: AngularVelocityModel = AngularVelocity(),
+                threshold: CGFloat = 0,
+                handle: @escaping (_ isSelected: Bool, _ isActive: Bool) -> Handle) {
+        
+        
+        self._size = size
+        self._magnification = magnification
         self._angle = angle
+        self._rotation = rotation
         self._isSelected = isSelected
         self.model = model
         self.handle = handle

@@ -13,10 +13,14 @@ public class RotationOverlayModel<Handle: View>: ObservableObject, RotationModel
     
     
     // MARK: State
+    
+    @Binding public var size: CGSize
+    @Binding public var magnification: CGFloat
     // distance from the top of the view to the rotation handle
     var radialOffset: CGFloat = 50
     @Binding public var angle: CGFloat
     @Published public var gestureState: RotationOverlayState = RotationState.inactive
+    @Binding var rotation: CGFloat
     @Binding public var isSelected: Bool
     
     var handle: (Bool, Bool) -> Handle
@@ -56,18 +60,15 @@ public class RotationOverlayModel<Handle: View>: ObservableObject, RotationModel
         }
     }
     
-    
+    var radius: CGFloat {
+        magnification*size.height/2 + radialOffset
+    }
     
     // MARK: Calculations 
     
-    // Calculates the radius of the circle that the rotation handle is constrained to.
-    public func calculateRadius(proxy: GeometryProxy, magnification: CGFloat = 1) -> CGFloat {
-        return (proxy.size.height/2)*magnification + radialOffset
-        
-    }
     
     // Calculates the change in angle when the rotational handle is dragging
-    public func calculateDeltaTheta(radius: CGFloat, translation: CGSize) -> CGFloat {
+    public func calculateDeltaTheta(translation: CGSize) -> CGFloat {
         
         let lastX = radius*sin(angle)
         let lastY = -radius*cos(angle)
@@ -83,13 +84,13 @@ public class RotationOverlayModel<Handle: View>: ObservableObject, RotationModel
     // The Y component of the bottom handles should not affect the offset of the rotation handle
     // The Y component of the top handles are doubled to compensate.
     // All X components contribute half of their value.
-    public func calculateRotationalOffset(proxy: GeometryProxy, rotationGestureState: CGFloat = 0, magnification: CGFloat = 1, dragWidths: CGFloat = 0, dragTopHeights: CGFloat = 0) -> CGSize {
+    public func calculateRotationalOffset(dragWidths: CGFloat = 0, dragTopHeights: CGFloat = 0) -> CGSize {
            
-           let angles = angle + gestureState.deltaTheta + rotationGestureState
+           let angles = angle + gestureState.deltaTheta + rotation
            
            
-           let rX = sin(angles)*(calculateRadius(proxy: proxy, magnification: magnification))
-           let rY = -cos(angles)*(calculateRadius(proxy: proxy, magnification: magnification))
+           let rX = sin(angles)*(radius)
+           let rY = -cos(angles)*(radius)
            let x =   rX + cos(angle)*dragWidths/2 - sin(angle)*dragTopHeights
            let y =   rY + cos(angle)*dragTopHeights + sin(angle)*dragWidths/2
            
@@ -98,21 +99,20 @@ public class RotationOverlayModel<Handle: View>: ObservableObject, RotationModel
        }
     
     
-    public func getOverlay(proxy: GeometryProxy, rotationGestureState: CGFloat = 0, magnification: CGFloat = 1, dragWidths: CGFloat = 0, dragTopHeights: CGFloat = 0) -> AnyView {
+    public func getOverlay(dragWidths: CGFloat = 0, dragTopHeights: CGFloat = 0) -> AnyView {
         AnyView(ZStack {
             handle(isSelected, (gestureState as! RotationState).isActive)
         }
-        .offset(calculateRotationalOffset(proxy: proxy, rotationGestureState: rotationGestureState, magnification: magnification, dragWidths: dragWidths, dragTopHeights: dragTopHeights))
+        .offset(calculateRotationalOffset(dragWidths: dragWidths, dragTopHeights: dragTopHeights))
         .gesture(
             DragGesture()
                 .onChanged({ (value) in
-                    let radius = self.calculateRadius(proxy: proxy)
-                    let deltaTheta = self.calculateDeltaTheta(radius: radius, translation: value.translation)
+                    
+                    let deltaTheta = self.calculateDeltaTheta(translation: value.translation)
                     self.gestureState = RotationState.active(translation: value.translation, deltaTheta: deltaTheta)
                 })
                 .onEnded({ (value) in
-                    let radius = self.calculateRadius(proxy: proxy)
-                    self.angle += self.calculateDeltaTheta(radius: radius, translation: value.translation)
+                    self.angle += self.calculateDeltaTheta(translation: value.translation)
                     self.gestureState = RotationState.inactive
                 })
         ))
@@ -124,8 +124,18 @@ public class RotationOverlayModel<Handle: View>: ObservableObject, RotationModel
     
     // MARK: Init
     
-    public init(angle: Binding<CGFloat>, isSelected: Binding<Bool>, handle: @escaping (Bool, Bool) -> Handle) {
+    public init(size: Binding<CGSize>,
+                magnification: Binding<CGFloat>,
+                angle: Binding<CGFloat>,
+                rotation: Binding<CGFloat>,
+                isSelected: Binding<Bool>,
+                handle: @escaping (Bool, Bool) -> Handle) {
+        
+        
+        self._size = size
+        self._magnification = magnification
         self._angle = angle
+        self._rotation = rotation
         self._isSelected = isSelected
         self.handle = handle
     }

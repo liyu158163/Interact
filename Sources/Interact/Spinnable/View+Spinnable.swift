@@ -11,7 +11,7 @@ import SwiftUI
 
 @available(iOS 13.0, macOS 10.15, watchOS 6.0 , tvOS 13.0, *)
 public extension View {
-   
+    
     
     /// # Spinnable
     ///
@@ -40,9 +40,23 @@ public extension View {
     ///                   })
     ///
     ///
-    func spinnable<Handle: View>(model: AngularVelocityModel = AngularVelocity(), threshold: CGFloat = 0, @ViewBuilder handle: @escaping (_ isSelected: Bool, _ isActive: Bool) -> Handle) -> some View {
-        self.dependencyBuffer(initialSize: .zero) { (_, _, angle, isSelected)  in
-            Spinnable(angle: angle, isSelected: isSelected, model: model, threshold: threshold, handle: handle)
+    func spinnable<Handle: View>(model: AngularVelocityModel = AngularVelocity(),
+                                 threshold: CGFloat = 0,
+                                 @ViewBuilder handle: @escaping (_ isSelected: Bool, _ isActive: Bool) -> Handle) -> some View {
+        
+        
+        self.dependencyBuffer(initialSize: .zero) { (_, size, magnification, angle, rotation, isSelected)  in
+            
+            Spinnable(
+                size: size,
+                magnification: magnification,
+                angle: angle,
+                rotation: rotation,
+                isSelected: isSelected,
+                model: model,
+                threshold: threshold,
+                handle: handle
+            )
         }
     }
 }

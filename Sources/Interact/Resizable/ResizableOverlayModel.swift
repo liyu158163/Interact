@@ -23,6 +23,8 @@ public class ResizableOverlayModel<Handle: View>: ObservableObject {
     @Binding var offset: CGSize
     @Binding var size: CGSize
     @Binding var isSelected: Bool
+    @Binding var angle: CGFloat
+    @Binding var magnification: CGFloat
     
     
 
@@ -31,11 +33,11 @@ public class ResizableOverlayModel<Handle: View>: ObservableObject {
     var handle: (Bool, Bool) -> Handle
     
     
-    func getTopLeading(proxy: GeometryProxy, angle: CGFloat = 0, magnification: CGFloat = 1) -> some View{
+    var topLead: some View {
         
         
-        let pX = proxy.frame(in: .local).minX + topLeadState.width + bottomLeadState.width
-        let pY = proxy.frame(in: .local).minY + topLeadState.height + topTrailState.height
+        let pX = topLeadState.width + bottomLeadState.width
+        let pY = topLeadState.height + topTrailState.height
         
         let oX = -size.width*(magnification-1)/2
         let oY = -size.height*(magnification-1)/2
@@ -45,8 +47,8 @@ public class ResizableOverlayModel<Handle: View>: ObservableObject {
                 self.topLeadState = value.translation
             })
             .onEnded { (value) in
-                let x = cos(angle)*value.translation.width - sin(angle)*value.translation.height
-                let y = cos(angle)*value.translation.height + sin(angle)*value.translation.width
+                let x = cos(self.angle)*value.translation.width - sin(self.angle)*value.translation.height
+                let y = cos(self.angle)*value.translation.height + sin(self.angle)*value.translation.width
                 
                 self.offset.width += x/2
                 self.offset.height += y/2
@@ -65,11 +67,11 @@ public class ResizableOverlayModel<Handle: View>: ObservableObject {
         .offset(x: oX, y: oY)
     }
     
-    func getBottomLead(proxy: GeometryProxy, angle: CGFloat = 0, magnification: CGFloat = 1) -> some View {
+    var bottomLead: some View {
         
         
-        let pX = proxy.frame(in: .local).minX + topLeadState.width + bottomLeadState.width
-        let pY = proxy.frame(in: .local).maxY + bottomTrailState.height + bottomLeadState.height
+        let pX = topLeadState.width + bottomLeadState.width
+        let pY = size.height + bottomTrailState.height + bottomLeadState.height
         
         let oX = -size.width*(magnification-1)/2
         let oY = size.height*(magnification-1)/2
@@ -80,8 +82,8 @@ public class ResizableOverlayModel<Handle: View>: ObservableObject {
                 self.bottomLeadState = value.translation
             })
             .onEnded { (value) in
-                let x = cos(angle)*value.translation.width - sin(angle)*value.translation.height
-                let y = cos(angle)*value.translation.height + sin(angle)*value.translation.width
+                let x = cos(self.angle)*value.translation.width - sin(self.angle)*value.translation.height
+                let y = cos(self.angle)*value.translation.height + sin(self.angle)*value.translation.width
                 
                 self.offset.width += x/2
                 self.offset.height += y/2
@@ -100,11 +102,11 @@ public class ResizableOverlayModel<Handle: View>: ObservableObject {
         .offset(x: oX, y: oY)
     }
     
-    func getTopTrail(proxy: GeometryProxy, angle: CGFloat = 0, magnification: CGFloat = 1) -> some View {
+    var topTrail: some View {
         
         
-        let pX = proxy.frame(in: .local).maxX + bottomTrailState.width + topTrailState.width
-        let pY = proxy.frame(in: .local).minY + topLeadState.height + topTrailState.height
+        let pX = size.width + bottomTrailState.width + topTrailState.width
+        let pY = topLeadState.height + topTrailState.height
         
         let oX = size.width*(magnification-1)/2
         let oY = -size.height*(magnification-1)/2
@@ -114,8 +116,8 @@ public class ResizableOverlayModel<Handle: View>: ObservableObject {
                 self.topTrailState = value.translation
             })
             .onEnded { (value) in
-                let x = cos(angle)*value.translation.width - sin(angle)*value.translation.height
-                let y = cos(angle)*value.translation.height + sin(angle)*value.translation.width
+                let x = cos(self.angle)*value.translation.width - sin(self.angle)*value.translation.height
+                let y = cos(self.angle)*value.translation.height + sin(self.angle)*value.translation.width
                 
                 self.offset.width += x/2
                 self.offset.height += y/2
@@ -134,10 +136,10 @@ public class ResizableOverlayModel<Handle: View>: ObservableObject {
         .offset(x: oX, y: oY)
     }
     
-    func getBottomTrail(proxy: GeometryProxy, angle: CGFloat = 0, magnification: CGFloat = 1) -> some View {
+    var bottomTrail: some View {
         
-        let pX = proxy.frame(in: .local).maxX + topTrailState.width + bottomTrailState.width
-        let pY = proxy.frame(in: .local).maxY + bottomLeadState.height + bottomTrailState.height
+        let pX = size.width + topTrailState.width + bottomTrailState.width
+        let pY = size.height + bottomLeadState.height + bottomTrailState.height
         
         let oX = size.width*(magnification-1)/2
         let oY = size.height*(magnification-1)/2
@@ -147,8 +149,8 @@ public class ResizableOverlayModel<Handle: View>: ObservableObject {
                 self.bottomTrailState = value.translation
             })
             .onEnded { (value) in
-                let x = cos(angle)*value.translation.width - sin(angle)*value.translation.height
-                let y = cos(angle)*value.translation.height + sin(angle)*value.translation.width
+                let x = cos(self.angle)*value.translation.width - sin(self.angle)*value.translation.height
+                let y = cos(self.angle)*value.translation.height + sin(self.angle)*value.translation.width
                 
                 self.offset.width += x/2
                 self.offset.height += y/2
@@ -167,63 +169,26 @@ public class ResizableOverlayModel<Handle: View>: ObservableObject {
         
     }
     
-    public func getOverlay(proxy: GeometryProxy, angle: CGFloat = 0, magnification: CGFloat = 1) -> some View {
+    public var overlay: some View {
         ZStack {
-            self.getTopTrail(proxy: proxy, angle: angle, magnification: magnification)
-            
-            self.getBottomTrail(proxy: proxy, angle: angle, magnification: magnification)
-            
-            self.getTopLeading(proxy: proxy, angle: angle, magnification: magnification)
-            
-            self.getBottomLead(proxy: proxy, angle: angle, magnification: magnification)
+            topLead
+            topTrail
+            bottomLead 
+            bottomTrail
         }
-    }
-    
-    
-    // MARK: Scaling
-    
-    func calculateScaleWidth(value: CGFloat) -> CGFloat {
-        return (size.width + value)/size.width
-    }
-    
-    func calculateScaleHeight(value: CGFloat) -> CGFloat {
-        return (size.height + value)/size.height
-    }
-    
-    // Applies the maginification scale effects on the view
-    public func applyScales(view: AnyView, magnification: CGFloat = 1) -> some View {
-        // basically to make the animations for dragging the
-        // corners work properly, specific scale effects are applied
-        // during the individual hold's drag gesture.
-        return view
-            .frame(width: size.width, height: size.height, alignment: .center)
-            .scaleEffect(magnification)
-            // Top Leading Drag Gesture
-            .scaleEffect(CGSize(width: calculateScaleWidth(value: -topLeadState.width),
-                                height: calculateScaleHeight(value: -topLeadState.height)),
-                         anchor: .bottomTrailing)
-            // Bottom Leading Drag Gesture
-            .scaleEffect(CGSize(width: calculateScaleWidth(value: -bottomLeadState.width),
-                                height: calculateScaleHeight(value: bottomLeadState.height)),
-                         anchor: .topTrailing)
-            // Top Trailing Drag Gesture
-            .scaleEffect(CGSize(width: calculateScaleWidth(value: topTrailState.width),
-                                height: calculateScaleHeight(value: -topTrailState.height)),
-                         anchor: .bottomLeading)
-            // Bottom Trailing Drag Gesture
-            .scaleEffect(CGSize(width: calculateScaleWidth(value: bottomTrailState.width),
-                                height: calculateScaleHeight(value: bottomTrailState.height)),
-                         anchor: .topLeading)
     }
     
     
     
     // MARK: Init
     
-    public init(initialSize: CGSize = CGSize(width: 100, height: 200), offset: Binding<CGSize>, size: Binding<CGSize>, isSelected: Binding<Bool>, handle: @escaping (Bool, Bool) -> Handle) {
+    public init(initialSize: CGSize = CGSize(width: 100, height: 200), offset: Binding<CGSize>, size: Binding<CGSize>, magnification: Binding<CGFloat>, angle: Binding<CGFloat>, isSelected: Binding<Bool>, handle: @escaping (_ isSelected: Bool, _ isActive: Bool) -> Handle) {
         self._size = size
         self._offset = offset
+        self._magnification = magnification
+        self._angle = angle 
         self._isSelected = isSelected
+        
         self.handle = handle
     }
     

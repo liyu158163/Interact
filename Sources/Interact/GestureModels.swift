@@ -59,7 +59,7 @@ class RotationGestureModel: ObservableObject {
     
     // MARK: Rotation Gesture
     
-    @Published var rotationState: CGFloat = 0
+    @Binding var rotationState: CGFloat
     @Binding var angle: CGFloat
     
     var rotationGesture: some Gesture {
@@ -74,8 +74,9 @@ class RotationGestureModel: ObservableObject {
     }
     
     // MARK: Init
-    init(angle: Binding<CGFloat>) {
+    init(angle: Binding<CGFloat>, rotation: Binding<CGFloat>) {
         self._angle = angle
+        self._rotationState = rotation
     }
 }
 
@@ -84,7 +85,7 @@ class MagnificationGestureModel: ObservableObject {
     
     // MARK: Magnification Gesture
     
-    @Published var magnification: CGFloat = 1
+    @Binding var magnification: CGFloat
     @Binding var size: CGSize
     
     var magnificationGesture: some Gesture {
@@ -102,7 +103,8 @@ class MagnificationGestureModel: ObservableObject {
     
     
     // MARK: Init
-    init(size: Binding<CGSize>) {
+    init(size: Binding<CGSize>, magnification: Binding<CGFloat>) {
         self._size = size
+        self._magnification = magnification
     }
 }

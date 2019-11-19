@@ -13,9 +13,25 @@ public struct Spinnable<Handle: View>: ViewModifier {
     @ObservedObject var spinModel: SpinnableModel<Handle>
     @ObservedObject var rotationGestureModel: RotationGestureModel
     
-    public init(angle: Binding<CGFloat>, isSelected: Binding<Bool>, model: AngularVelocityModel = AngularVelocity(), threshold: CGFloat = 0, @ViewBuilder handle: @escaping (Bool, Bool) -> Handle) {
-        self.spinModel = SpinnableModel(angle: angle, isSelected: isSelected, model: model, threshold: threshold, handle: handle)
-        self.rotationGestureModel = RotationGestureModel(angle: angle)
+    public init(size: Binding<CGSize>,
+                magnification: Binding<CGFloat>,
+                angle: Binding<CGFloat>,
+                rotation: Binding<CGFloat>,
+                isSelected: Binding<Bool>,
+                model: AngularVelocityModel = AngularVelocity(),
+                threshold: CGFloat = 0,
+                handle: @escaping (_ isSelected: Bool, _ isActive: Bool) -> Handle) {
+        
+        
+        self.spinModel = SpinnableModel(size: size,
+                                        magnification: magnification,
+                                        angle: angle,
+                                        rotation: rotation,
+                                        isSelected: isSelected,
+                                        model: model,
+                                        threshold: threshold,
+                                        handle: handle)
+        self.rotationGestureModel = RotationGestureModel(angle: angle, rotation: rotation)
         
     }
     
@@ -28,11 +44,9 @@ public struct Spinnable<Handle: View>: ViewModifier {
             .rotationEffect(Angle(radians: Double(currentAngle)))
             .gesture(rotationGestureModel.rotationGesture)
             .overlay(
-                GeometryReader { proxy in
-                    ZStack {
-                        self.spinModel.getOverlay(proxy: proxy)
-                    }
-            })
+               ZStack {
+                   self.spinModel.getOverlay()
+               })
             .onTapGesture {
                 withAnimation(.easeIn(duration: 0.2)) {
                     self.spinModel.isSelected.toggle()

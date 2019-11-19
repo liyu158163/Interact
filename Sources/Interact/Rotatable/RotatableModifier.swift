@@ -15,20 +15,35 @@ public struct Rotatable<Handle: View>: ViewModifier {
     @ObservedObject var rotationGestureModel: RotationGestureModel
     
     /// The first boolean gives access to the isSelected property of the rotationModel, while the second boolean represents the drag state of the rotation overlay handle .
-    public init(angle: Binding<CGFloat>, isSelected: Binding<Bool>, @ViewBuilder handle: @escaping (_ isSelected: Bool, _ isActive: Bool) -> Handle) {
-        self.rotationModel = RotationOverlayModel(angle: angle, isSelected: isSelected, handle: handle)
-        self.rotationGestureModel = RotationGestureModel(angle: angle)
+    public init(size: Binding<CGSize>,
+                magnification: Binding<CGFloat>,
+                angle: Binding<CGFloat>,
+                rotation: Binding<CGFloat>,
+                isSelected: Binding<Bool>,
+                @ViewBuilder handle: @escaping (_ isSelected: Bool, _ isActive: Bool) -> Handle) {
+        
+        self.rotationModel = RotationOverlayModel(size: size,
+                                                  magnification: magnification,
+                                                  angle: angle,
+                                                  rotation: rotation,
+                                                  isSelected: isSelected,
+                                                  handle: handle)
+        self.rotationGestureModel = RotationGestureModel(angle: angle, rotation: rotation)
+    }
+    
+    var currentAngle: CGFloat {
+        rotationModel.angle + rotationModel.gestureState.deltaTheta + rotationGestureModel.rotationState
     }
     
     
     public func body(content: Content) -> some View  {
         content
-            .rotationEffect(Angle(radians: Double(rotationModel.angle + rotationModel.gestureState.deltaTheta + rotationGestureModel.rotationState)))
+            .rotationEffect(Angle(radians: Double(currentAngle)))
             .gesture(rotationGestureModel.rotationGesture)
             .overlay(
                 GeometryReader { proxy in
                     ZStack {
-                        self.rotationModel.getOverlay(proxy: proxy)
+                        self.rotationModel.getOverlay()
                     }
                 }
         )
