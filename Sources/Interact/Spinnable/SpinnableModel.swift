@@ -18,6 +18,10 @@ public class SpinnableModel<Handle: View>: ObservableObject, RotationModel {
     var model: AngularVelocityModel
     @Binding public var size: CGSize
     @Binding public var magnification: CGFloat
+    @Binding var topLeadState: CGSize
+    @Binding var bottomLeadState: CGSize
+    @Binding var topTrailState: CGSize
+    @Binding var bottomTrailState: CGSize
     /// This is kind of like the angular equivalent of a draggable view's `offset`.
     @Binding public var angle: CGFloat
     @Binding public var rotation: CGFloat
@@ -100,6 +104,14 @@ public class SpinnableModel<Handle: View>: ObservableObject, RotationModel {
         return size.height/2 + radialOffset
     }
     
+    var dragWidths: CGFloat {
+        return topLeadState.width + topTrailState.width + bottomLeadState.width + bottomTrailState.width
+    }
+    
+    var dragTopHeights: CGFloat {
+        return topLeadState.height + topTrailState.height
+    }
+    
     
     // MARK: Calculations
     
@@ -108,7 +120,7 @@ public class SpinnableModel<Handle: View>: ObservableObject, RotationModel {
     // The Y component of the bottom handles should not affect the offset of the rotation handle
     // The Y component of the top handles are doubled to compensate.
     // All X components contribute half of their value.
-    public func calculateRotationalOffset(dragWidths: CGFloat = 0, dragTopHeights: CGFloat = 0) -> CGSize {
+    public var rotationalOffset: CGSize {
         
         let angles = angle + gestureState.deltaTheta + rotation
         
@@ -173,10 +185,10 @@ public class SpinnableModel<Handle: View>: ObservableObject, RotationModel {
     
     // MARK: Overlay
     
-    public func getOverlay(dragWidths: CGFloat = 0, dragTopHeights: CGFloat = 0) -> AnyView {
+    public var overlay: AnyView {
         AnyView(ZStack {
             handle(isSelected, (gestureState as! SpinState).isActive)
-        }.offset(calculateRotationalOffset(dragWidths: dragWidths, dragTopHeights: dragTopHeights))
+        }.offset(rotationalOffset)
             .gesture(
                 DragGesture()
                     .onChanged({ (value) in
@@ -202,6 +214,10 @@ public class SpinnableModel<Handle: View>: ObservableObject, RotationModel {
     
     public init(size: Binding<CGSize>,
                 magnification: Binding<CGFloat>,
+                topLeadingState: Binding<CGSize>,
+                bottomLeadingState: Binding<CGSize>,
+                topTrailingState: Binding<CGSize>,
+                bottomTrailingState: Binding<CGSize>,
                 angle: Binding<CGFloat>,
                 rotation: Binding<CGFloat>,
                 isSelected: Binding<Bool>,
@@ -212,6 +228,10 @@ public class SpinnableModel<Handle: View>: ObservableObject, RotationModel {
         
         self._size = size
         self._magnification = magnification
+        self._topLeadState = topLeadingState
+        self._bottomLeadState = bottomLeadingState
+        self._topTrailState = topTrailingState
+        self._bottomTrailState = bottomTrailingState
         self._angle = angle
         self._rotation = rotation
         self._isSelected = isSelected

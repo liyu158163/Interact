@@ -70,6 +70,10 @@ public struct Resizable<Handle: View>: ViewModifier {
                 offset: Binding<CGSize>,
                 size: Binding<CGSize>,
                 magnification: Binding<CGFloat>,
+                topLeadingState: Binding<CGSize>,
+                bottomLeadingState: Binding<CGSize>,
+                topTrailingState: Binding<CGSize>,
+                bottomTrailingState: Binding<CGSize>,
                 angle: Binding<CGFloat>,
                 isSelected: Binding<Bool>,
                 @ViewBuilder handle: @escaping (_ isSelected: Bool, _ isActive: Bool) -> Handle) {
@@ -78,6 +82,10 @@ public struct Resizable<Handle: View>: ViewModifier {
                                                     offset: offset,
                                                     size: size,
                                                     magnification: magnification,
+                                                    topLeadingState: topLeadingState,
+                                                    bottomLeadingState: bottomLeadingState,
+                                                    topTrailingState: topTrailingState,
+                                                    bottomTrailingState: bottomTrailingState,
                                                     angle: angle,
                                                     isSelected: isSelected,
                                                     handle: handle)

@@ -17,6 +17,10 @@ public struct Rotatable<Handle: View>: ViewModifier {
     /// The first boolean gives access to the isSelected property of the rotationModel, while the second boolean represents the drag state of the rotation overlay handle .
     public init(size: Binding<CGSize>,
                 magnification: Binding<CGFloat>,
+                topLeadingState: Binding<CGSize>,
+                bottomLeadingState: Binding<CGSize>,
+                topTrailingState: Binding<CGSize>,
+                bottomTrailingState: Binding<CGSize>,
                 angle: Binding<CGFloat>,
                 rotation: Binding<CGFloat>,
                 isSelected: Binding<Bool>,
@@ -24,6 +28,10 @@ public struct Rotatable<Handle: View>: ViewModifier {
         
         self.rotationModel = RotationOverlayModel(size: size,
                                                   magnification: magnification,
+                                                  topLeadingState: topLeadingState,
+                                                  bottomLeadingState: bottomLeadingState,
+                                                  topTrailingState: topTrailingState,
+                                                  bottomTrailingState: bottomTrailingState,
                                                   angle: angle,
                                                   rotation: rotation,
                                                   isSelected: isSelected,
@@ -43,7 +51,7 @@ public struct Rotatable<Handle: View>: ViewModifier {
             .overlay(
                 GeometryReader { proxy in
                     ZStack {
-                        self.rotationModel.getOverlay()
+                        self.rotationModel.overlay
                     }
                 }
         )

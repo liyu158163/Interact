@@ -15,6 +15,10 @@ public struct Spinnable<Handle: View>: ViewModifier {
     
     public init(size: Binding<CGSize>,
                 magnification: Binding<CGFloat>,
+                topLeadingState: Binding<CGSize>,
+                bottomLeadingState: Binding<CGSize>,
+                topTrailingState: Binding<CGSize>,
+                bottomTrailingState: Binding<CGSize>,
                 angle: Binding<CGFloat>,
                 rotation: Binding<CGFloat>,
                 isSelected: Binding<Bool>,
@@ -25,6 +29,10 @@ public struct Spinnable<Handle: View>: ViewModifier {
         
         self.spinModel = SpinnableModel(size: size,
                                         magnification: magnification,
+                                        topLeadingState: topLeadingState,
+                                        bottomLeadingState: bottomLeadingState,
+                                        topTrailingState: topTrailingState,
+                                        bottomTrailingState: bottomTrailingState,
                                         angle: angle,
                                         rotation: rotation,
                                         isSelected: isSelected,
@@ -45,7 +53,7 @@ public struct Spinnable<Handle: View>: ViewModifier {
             .gesture(rotationGestureModel.rotationGesture)
             .overlay(
                ZStack {
-                   self.spinModel.getOverlay()
+                   self.spinModel.overlay
                })
             .onTapGesture {
                 withAnimation(.easeIn(duration: 0.2)) {

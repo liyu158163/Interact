@@ -25,13 +25,6 @@ public struct ResizableRotatable<ResizingHandle: View, RotationHandle: View, R: 
     
     
     // MARK: Convienence Values
-    var dragWidths: CGFloat {
-        return resizableModel.topLeadState.width + resizableModel.topTrailState.width + resizableModel.bottomLeadState.width + resizableModel.bottomTrailState.width
-    }
-    
-    var dragTopHeights: CGFloat {
-        return resizableModel.topLeadState.height + resizableModel.topTrailState.height
-    }
     
     var currentAngle: CGFloat {
         rotationModel.angle + rotationModel.gestureState.deltaTheta + rotationGestureModel.rotationState
@@ -45,7 +38,6 @@ public struct ResizableRotatable<ResizingHandle: View, RotationHandle: View, R: 
             .frame(width: resizableModel.size.width, height: resizableModel.size.height)
             .scaleEffect(magnificationGestureModel.magnification)
             .applyResizingScales(model: resizableModel)
-            
             .onTapGesture {
                 withAnimation(.easeIn(duration: 0.2)) {
                     self.rotationModel.isSelected = !self.rotationModel.isSelected
@@ -58,9 +50,7 @@ public struct ResizableRotatable<ResizingHandle: View, RotationHandle: View, R: 
         .simultaneousGesture(rotationGestureModel.rotationGesture)
         .overlay(
             ZStack {
-                self.rotationModel.getOverlay(
-                    dragWidths: self.dragWidths,
-                    dragTopHeights: self.dragTopHeights)
+                self.rotationModel.overlay
         })
             .offset(x: self.resizableModel.offset.width + dragGestureModel.dragState.width,
                     y: self.resizableModel.offset.height + dragGestureModel.dragState.height)
@@ -71,6 +61,10 @@ public struct ResizableRotatable<ResizingHandle: View, RotationHandle: View, R: 
                 offset: Binding<CGSize>,
                 size: Binding<CGSize>,
                 magnification: Binding<CGFloat>,
+                topLeadingState: Binding<CGSize>,
+                bottomLeadingState: Binding<CGSize>,
+                topTrailingState: Binding<CGSize>,
+                bottomTrailingState: Binding<CGSize>,
                 angle: Binding<CGFloat>,
                 rotation: Binding<CGFloat>,
                 isSelected: Binding<Bool>,
@@ -81,6 +75,10 @@ public struct ResizableRotatable<ResizingHandle: View, RotationHandle: View, R: 
                                                     offset: offset,
                                                     size: size,
                                                     magnification: magnification,
+                                                    topLeadingState: topLeadingState,
+                                                    bottomLeadingState: bottomLeadingState,
+                                                    topTrailingState: topTrailingState,
+                                                    bottomTrailingState: bottomTrailingState,
                                                     angle: angle,
                                                     isSelected: isSelected,
                                                     handle: resizingHandle)
@@ -204,11 +202,15 @@ public extension View {
     ///
     func resizable<Handle: View>(initialSize: CGSize, @ViewBuilder handle: @escaping (_ isSelected: Bool, _ isActive: Bool) -> Handle) -> some View {
         
-        self.dependencyBuffer(initialSize: initialSize) { (offset, size, magnification, angle, _, isSelected)  in
+        self.dependencyBuffer(initialSize: initialSize) { (offset, size, magnification, topLeadingState, bottomLeadingState, topTrailingState, bottomTrailingState, angle, rotation, isSelected)  in
             Resizable(initialSize: initialSize,
                       offset: offset,
                       size: size,
                       magnification: magnification,
+                      topLeadingState: topLeadingState,
+                      bottomLeadingState: bottomLeadingState,
+                      topTrailingState: topTrailingState,
+                      bottomTrailingState: bottomTrailingState,
                       angle: angle,
                       isSelected: isSelected,
                       handle: handle)
@@ -267,20 +269,29 @@ public extension View {
         case .normal(let handle):
             return AnyView(
                 self.dependencyBuffer(initialSize: initialSize,
-                                      modifier: { (offset, size, magnification, angle, rotation, isSelected)   in
-                                        ResizableRotatable<ResizingHandle,
+                                      modifier: { (offset, size, magnification, topLeadingState, bottomLeadingState, topTrailingState, bottomTrailingState, angle, rotation, isSelected)   in
+                                        ResizableRotatable<
+                                            ResizingHandle,
                                             RotationHandle,
                                             RotationOverlayModel>(
                                                 initialSize: initialSize,
                                                 offset: offset,
                                                 size: size,
                                                 magnification: magnification,
+                                                topLeadingState: topLeadingState,
+                                                bottomLeadingState: bottomLeadingState,
+                                                topTrailingState: topTrailingState,
+                                                bottomTrailingState: bottomTrailingState,
                                                 angle: angle,
                                                 rotation: rotation,
                                                 isSelected: isSelected,
                                                 resizingHandle: resizingHandle,
                                                 rotationModel: RotationOverlayModel(size: size,
                                                                                     magnification: magnification,
+                                                                                    topLeadingState: topLeadingState,
+                                                                                    bottomLeadingState: bottomLeadingState,
+                                                                                    topTrailingState: topTrailingState,
+                                                                                    bottomTrailingState: bottomTrailingState,
                                                                                     angle: angle,
                                                                                     rotation: rotation,
                                                                                     isSelected: isSelected,
@@ -290,25 +301,35 @@ public extension View {
             
         case .spinnable(let model, let threshold, let handle):
             return AnyView(
-                self.dependencyBuffer(initialSize: initialSize, modifier: { (offset, size, magnification, angle, rotation, isSelected)  in
-                    ResizableRotatable<ResizingHandle,
+                self.dependencyBuffer(initialSize: initialSize, modifier: { (offset, size, magnification, topLeadingState, bottomLeadingState, topTrailingState, bottomTrailingState, angle, rotation, isSelected)  in
+                    ResizableRotatable<
+                        ResizingHandle,
                         RotationHandle,
-                        SpinnableModel>(initialSize: initialSize,
-                                        offset: offset,
-                                        size: size,
-                                        magnification: magnification,
-                                        angle: angle,
-                                        rotation: rotation,
-                                        isSelected: isSelected,
-                                        resizingHandle: resizingHandle,
-                                        rotationModel: SpinnableModel<RotationHandle>(size: size,
-                                                                                      magnification: magnification,
-                                                                                      angle: angle,
-                                                                                      rotation: rotation,
-                                                                                      isSelected: isSelected,
-                                                                                      model: model,
-                                                                                      threshold: threshold,
-                                                                                      handle: handle))
+                        SpinnableModel
+                        >(initialSize: initialSize,
+                          offset: offset,
+                          size: size,
+                          magnification: magnification,
+                          topLeadingState: topLeadingState,
+                          bottomLeadingState: bottomLeadingState,
+                          topTrailingState: topTrailingState,
+                          bottomTrailingState: bottomTrailingState,
+                          angle: angle,
+                          rotation: rotation,
+                          isSelected: isSelected,
+                          resizingHandle: resizingHandle,
+                          rotationModel: SpinnableModel<RotationHandle>(size: size,
+                                                                        magnification: magnification,
+                                                                        topLeadingState: topLeadingState,
+                                                                        bottomLeadingState: bottomLeadingState,
+                                                                        topTrailingState: topTrailingState,
+                                                                        bottomTrailingState: bottomTrailingState,
+                                                                        angle: angle,
+                                                                        rotation: rotation,
+                                                                        isSelected: isSelected,
+                                                                        model: model,
+                                                                        threshold: threshold,
+                                                                        handle: handle))
                 })
             )
         }

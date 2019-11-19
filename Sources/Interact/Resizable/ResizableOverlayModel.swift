@@ -16,15 +16,15 @@ public class ResizableOverlayModel<Handle: View>: ObservableObject {
     
     // MARK: State
     
-    @Published var topLeadState: CGSize = .zero
-    @Published var bottomLeadState: CGSize = .zero
-    @Published var topTrailState: CGSize = .zero
-    @Published var bottomTrailState: CGSize = .zero
     @Binding var offset: CGSize
     @Binding var size: CGSize
-    @Binding var isSelected: Bool
-    @Binding var angle: CGFloat
     @Binding var magnification: CGFloat
+    @Binding var topLeadState: CGSize
+    @Binding var bottomLeadState: CGSize
+    @Binding var topTrailState: CGSize
+    @Binding var bottomTrailState: CGSize
+    @Binding var angle: CGFloat
+    @Binding var isSelected: Bool
     
     
 
@@ -182,10 +182,25 @@ public class ResizableOverlayModel<Handle: View>: ObservableObject {
     
     // MARK: Init
     
-    public init(initialSize: CGSize = CGSize(width: 100, height: 200), offset: Binding<CGSize>, size: Binding<CGSize>, magnification: Binding<CGFloat>, angle: Binding<CGFloat>, isSelected: Binding<Bool>, handle: @escaping (_ isSelected: Bool, _ isActive: Bool) -> Handle) {
+    public init(initialSize: CGSize = CGSize(width: 100, height: 200),
+                offset: Binding<CGSize>,
+                size: Binding<CGSize>,
+                magnification: Binding<CGFloat>,
+                topLeadingState: Binding<CGSize>,
+                bottomLeadingState: Binding<CGSize>,
+                topTrailingState: Binding<CGSize>,
+                bottomTrailingState: Binding<CGSize>,
+                angle: Binding<CGFloat>,
+                isSelected: Binding<Bool>,
+                handle: @escaping (_ isSelected: Bool, _ isActive: Bool) -> Handle) {
+        
         self._size = size
         self._offset = offset
         self._magnification = magnification
+        self._topLeadState = topLeadingState
+        self._bottomLeadState = bottomLeadingState
+        self._topTrailState = topTrailingState
+        self._bottomTrailState = bottomTrailingState
         self._angle = angle 
         self._isSelected = isSelected
         

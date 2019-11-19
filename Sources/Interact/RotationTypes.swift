@@ -21,7 +21,7 @@ public protocol RotationModel: ObservableObject {
     var angle: CGFloat { get set }
     var gestureState: RotationOverlayState { get set }
     var isSelected: Bool { get set }
-    func getOverlay(dragWidths: CGFloat, dragTopHeights: CGFloat) -> AnyView
+    var overlay: AnyView { get }
 }
 
 

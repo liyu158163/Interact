@@ -26,7 +26,7 @@ public extension View {
     ///
     ///
     func throwable(model: VelocityModel = Velocity(), threshold: CGFloat = 0) -> some View {
-        self.dependencyBuffer(initialSize: .zero) { (offset, _, _, _, _, _)  in
+        self.dependencyBuffer(initialSize: .zero) { (offset, _, _, _, _, _, _, _, _, _)  in
             ThrowableModifier(offset: offset, model: model, threshold: threshold)
         }
     }
