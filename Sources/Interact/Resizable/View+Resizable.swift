@@ -34,6 +34,7 @@ public struct ResizableRotatable<ResizingHandle: View, RotationHandle: View, R: 
         
         content
             .frame(width: resizableModel.size.width, height: resizableModel.size.height)
+            .simultaneousGesture(dragGestureModel.dragGesture)
             .scaleEffect(magnificationGestureModel.magnification)
             .applyResizingScales(model: resizableModel)
             .onTapGesture {
@@ -41,7 +42,6 @@ public struct ResizableRotatable<ResizingHandle: View, RotationHandle: View, R: 
                     self.rotationModel.isSelected = !self.rotationModel.isSelected
                 }
         }
-        .simultaneousGesture(dragGestureModel.dragGesture)
         .simultaneousGesture(magnificationGestureModel.magnificationGesture)
         .overlay(resizableModel.overlay)
         .rotationEffect(Angle(radians: Double(currentAngle)))
