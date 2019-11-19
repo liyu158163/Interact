@@ -183,26 +183,18 @@ public class ResizableOverlayModel<Handle: View>: ObservableObject {
     // MARK: Init
     
     public init(initialSize: CGSize = CGSize(width: 100, height: 200),
-                offset: Binding<CGSize>,
-                size: Binding<CGSize>,
-                magnification: Binding<CGFloat>,
-                topLeadingState: Binding<CGSize>,
-                bottomLeadingState: Binding<CGSize>,
-                topTrailingState: Binding<CGSize>,
-                bottomTrailingState: Binding<CGSize>,
-                angle: Binding<CGFloat>,
-                isSelected: Binding<Bool>,
+                dependencies: ObservedObject<GestureDependencies>,
                 handle: @escaping (_ isSelected: Bool, _ isActive: Bool) -> Handle) {
         
-        self._size = size
-        self._offset = offset
-        self._magnification = magnification
-        self._topLeadState = topLeadingState
-        self._bottomLeadState = bottomLeadingState
-        self._topTrailState = topTrailingState
-        self._bottomTrailState = bottomTrailingState
-        self._angle = angle 
-        self._isSelected = isSelected
+        self._size = dependencies.projectedValue.size
+        self._offset = dependencies.projectedValue.offset
+        self._magnification = dependencies.projectedValue.magnification
+        self._topLeadState = dependencies.projectedValue.topLeadingState
+        self._bottomLeadState = dependencies.projectedValue.bottomLeadingState
+        self._topTrailState = dependencies.projectedValue.topTrailingState
+        self._bottomTrailState = dependencies.projectedValue.bottomTrailingState
+        self._angle = dependencies.projectedValue.angle 
+        self._isSelected = dependencies.projectedValue.isSelected
         
         self.handle = handle
     }

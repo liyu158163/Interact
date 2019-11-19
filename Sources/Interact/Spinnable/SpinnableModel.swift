@@ -212,29 +212,21 @@ public class SpinnableModel<Handle: View>: ObservableObject, RotationModel {
     
     // MARK: Init
     
-    public init(size: Binding<CGSize>,
-                magnification: Binding<CGFloat>,
-                topLeadingState: Binding<CGSize>,
-                bottomLeadingState: Binding<CGSize>,
-                topTrailingState: Binding<CGSize>,
-                bottomTrailingState: Binding<CGSize>,
-                angle: Binding<CGFloat>,
-                rotation: Binding<CGFloat>,
-                isSelected: Binding<Bool>,
+    public init(dependencies: ObservedObject<GestureDependencies>,
                 model: AngularVelocityModel,
                 threshold: CGFloat = 0,
                 handle: @escaping (_ isSelected: Bool, _ isActive: Bool) -> Handle) {
         
         
-        self._size = size
-        self._magnification = magnification
-        self._topLeadState = topLeadingState
-        self._bottomLeadState = bottomLeadingState
-        self._topTrailState = topTrailingState
-        self._bottomTrailState = bottomTrailingState
-        self._angle = angle
-        self._rotation = rotation
-        self._isSelected = isSelected
+        self._size = dependencies.projectedValue.size
+        self._magnification = dependencies.projectedValue.magnification
+        self._topLeadState = dependencies.projectedValue.topLeadingState
+        self._bottomLeadState = dependencies.projectedValue.bottomLeadingState
+        self._topTrailState = dependencies.projectedValue.topTrailingState
+        self._bottomTrailState = dependencies.projectedValue.bottomTrailingState
+        self._angle = dependencies.projectedValue.angle
+        self._rotation = dependencies.projectedValue.rotation
+        self._isSelected = dependencies.projectedValue.isSelected
         self.model = model
         self.handle = handle
         self.threshold = threshold

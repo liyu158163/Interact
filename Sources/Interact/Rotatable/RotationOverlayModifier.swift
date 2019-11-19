@@ -14,20 +14,11 @@ public struct RotationOverlay<Handle: View, R: RotationModel>: ViewModifier {
     @ObservedObject var model: R
     @ObservedObject var rotationGestureModel: RotationGestureModel
     
-    public init(size: Binding<CGSize>,
-                magnification: Binding<CGFloat>,
-                topLeadingState: Binding<CGSize>,
-                bottomLeadingState: Binding<CGSize>,
-                topTrailingState: Binding<CGSize>,
-                bottomTrailingState: Binding<CGSize>,
-                angle: Binding<CGFloat>,
-                rotation: Binding<CGFloat>,
-                isSelected: Binding<Bool>,
-                rotationModel: R) {
+    public init(dependencies: ObservedObject<GestureDependencies>, rotationModel: R) {
         
         
         self.model = rotationModel
-        self.rotationGestureModel = RotationGestureModel(angle: angle, rotation: rotation)
+        self.rotationGestureModel = RotationGestureModel(angle: dependencies.projectedValue.angle, rotation: dependencies.projectedValue.rotation)
         
     }
     
@@ -51,65 +42,19 @@ public struct RotationOverlay<Handle: View, R: RotationModel>: ViewModifier {
 @available(iOS 13.0, macOS 10.15, watchOS 6.0 , tvOS 13.0, *)
 public extension View {
     
-    func rotatable<RotationHandle: View>(initialSize: CGSize , rotationType: RotationType<RotationHandle>) -> some View  {
-            switch rotationType {
-                
-            case .normal(let handle):
-                return AnyView(
-                    self.dependencyBuffer(initialSize: initialSize,
-                                          modifier: { (offset, dragState, size, magnification, topLeadingState, bottomLeadingState, topTrailingState, bottomTrailingState, angle, rotation, isSelected)   in
-                                            RotationOverlay<RotationHandle, RotationOverlayModel>(
-                                                    size: size,
-                                                    magnification: magnification,
-                                                    topLeadingState: topLeadingState,
-                                                    bottomLeadingState: bottomLeadingState,
-                                                    topTrailingState: topTrailingState,
-                                                    bottomTrailingState: bottomTrailingState,
-                                                    angle: angle,
-                                                    rotation: rotation,
-                                                    isSelected: isSelected,
-                                                    rotationModel: RotationOverlayModel(size: size,
-                                                                                        magnification: magnification,
-                                                                                        topLeadingState: topLeadingState,
-                                                                                        bottomLeadingState: bottomLeadingState,
-                                                                                        topTrailingState: topTrailingState,
-                                                                                        bottomTrailingState: bottomTrailingState,
-                                                                                        angle: angle,
-                                                                                        rotation: rotation,
-                                                                                        isSelected: isSelected,
-                                                                                        handle: handle))
-                    })
-                )
-                
-            case .spinnable(let model, let threshold, let handle):
-                return AnyView(
-                    self.dependencyBuffer(initialSize: initialSize, modifier: { (offset, dragState, size, magnification, topLeadingState, bottomLeadingState, topTrailingState, bottomTrailingState, angle, rotation, isSelected)  in
-                        RotationOverlay<RotationHandle, SpinnableModel>(
-                              size: size,
-                              magnification: magnification,
-                              topLeadingState: topLeadingState,
-                              bottomLeadingState: bottomLeadingState,
-                              topTrailingState: topTrailingState,
-                              bottomTrailingState: bottomTrailingState,
-                              angle: angle,
-                              rotation: rotation,
-                              isSelected: isSelected,
-                              rotationModel: SpinnableModel<RotationHandle>(size: size,
-                                                                            magnification: magnification,
-                                                                            topLeadingState: topLeadingState,
-                                                                            bottomLeadingState: bottomLeadingState,
-                                                                            topTrailingState: topTrailingState,
-                                                                            bottomTrailingState: bottomTrailingState,
-                                                                            angle: angle,
-                                                                            rotation: rotation,
-                                                                            isSelected: isSelected,
-                                                                            model: model,
-                                                                            threshold: threshold,
-                                                                            handle: handle))
-                    })
-                )
-            }
+    func rotatable<RotationHandle: View>(initialSize: CGSize, @ViewBuilder handle: @escaping (Bool, Bool) -> RotationHandle) -> some View {
+        self.injectDependencies(initialSize: initialSize) { (dependencies)  in
+            RotationOverlay<RotationHandle, RotationOverlayModel>(dependencies: dependencies, rotationModel: RotationOverlayModel(dependencies: dependencies, handle: handle))
         }
     }
+    
+    
+    func spinnable<RotationHandle: View>(initialSize: CGSize = CGSize(width: 100, height: 100), model: AngularVelocityModel = AngularVelocity(), threshold: CGFloat = 0, @ViewBuilder handle: @escaping (Bool, Bool) -> RotationHandle) -> some View {
+        self.injectDependencies(initialSize: initialSize) { (dependencies)  in
+            RotationOverlay<RotationHandle, SpinnableModel>(dependencies: dependencies, rotationModel: SpinnableModel(dependencies: dependencies, model: model, threshold: threshold, handle: handle))
+        }
+    }
+    
+}
 
 

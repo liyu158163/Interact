@@ -52,37 +52,18 @@ public struct ResizableRotatable<ResizingHandle: View, RotationHandle: View, R: 
     }
     
     
-    public init(initialSize: CGSize,
-                offset: Binding<CGSize>,
-                dragState: Binding<TranslationState>,
-                size: Binding<CGSize>,
-                magnification: Binding<CGFloat>,
-                topLeadingState: Binding<CGSize>,
-                bottomLeadingState: Binding<CGSize>,
-                topTrailingState: Binding<CGSize>,
-                bottomTrailingState: Binding<CGSize>,
-                angle: Binding<CGFloat>,
-                rotation: Binding<CGFloat>,
-                isSelected: Binding<Bool>,
+    public init(initialSize: CGSize, dependencies: ObservedObject<GestureDependencies>,
                 resizingHandle: @escaping (_ isSelected: Bool, _ isActive: Bool) -> ResizingHandle,
                 rotationModel: R,
                 translationModel: T) {
         
         self.resizableModel = ResizableOverlayModel(initialSize: initialSize,
-                                                    offset: offset,
-                                                    size: size,
-                                                    magnification: magnification,
-                                                    topLeadingState: topLeadingState,
-                                                    bottomLeadingState: bottomLeadingState,
-                                                    topTrailingState: topTrailingState,
-                                                    bottomTrailingState: bottomTrailingState,
-                                                    angle: angle,
-                                                    isSelected: isSelected,
+                                                    dependencies: dependencies,
                                                     handle: resizingHandle)
         
-        self.magnificationGestureModel = MagnificationGestureModel(size: size, magnification: magnification)
+        self.magnificationGestureModel = MagnificationGestureModel(size: dependencies.projectedValue.size, magnification: dependencies.projectedValue.magnification)
         self.rotationModel = rotationModel
-        self.rotationGestureModel = RotationGestureModel(angle: angle, rotation: rotation)
+        self.rotationGestureModel = RotationGestureModel(angle: dependencies.projectedValue.angle, rotation: dependencies.projectedValue.rotation)
         self.dragGestureModel = translationModel
         
     }
@@ -112,17 +93,9 @@ public extension View {
     ///
     func resizable<Handle: View>(initialSize: CGSize, @ViewBuilder handle: @escaping (_ isSelected: Bool, _ isActive: Bool) -> Handle) -> some View {
         
-        self.dependencyBuffer(initialSize: initialSize) { (offset, dragState, size, magnification, topLeadingState, bottomLeadingState, topTrailingState, bottomTrailingState, angle, rotation, isSelected)  in
+        self.injectDependencies(initialSize: initialSize) { (dependencies)  in
             Resizable(initialSize: initialSize,
-                      offset: offset,
-                      size: size,
-                      magnification: magnification,
-                      topLeadingState: topLeadingState,
-                      bottomLeadingState: bottomLeadingState,
-                      topTrailingState: topTrailingState,
-                      bottomTrailingState: bottomTrailingState,
-                      angle: angle,
-                      isSelected: isSelected,
+                      dependencies: dependencies,
                       handle: handle)
         }
     }
@@ -173,80 +146,77 @@ public extension View {
     func resizable<ResizingHandle: View,
         RotationHandle: View>(initialSize: CGSize ,
                               @ViewBuilder resizingHandle: @escaping (_ isSelected: Bool, _ isActive: Bool) -> ResizingHandle,
-                                           rotationType: RotationType<RotationHandle>) -> some View  {
+                                           rotationType: RotationType<RotationHandle>,
+                                           dragType: TranslationType = .drag) -> some View  {
         switch rotationType {
             
         case .normal(let handle):
-            return AnyView(
-                self.dependencyBuffer(initialSize: initialSize,
-                                      modifier: { (offset, dragState, size, magnification, topLeadingState, bottomLeadingState, topTrailingState, bottomTrailingState, angle, rotation, isSelected)   in
-                                        ResizableRotatable<
-                                            ResizingHandle,
-                                            RotationHandle,
-                                            RotationOverlayModel, DragGestureModel>(
-                                                initialSize: initialSize,
-                                                offset: offset,
-                                                dragState: dragState,
-                                                size: size,
-                                                magnification: magnification,
-                                                topLeadingState: topLeadingState,
-                                                bottomLeadingState: bottomLeadingState,
-                                                topTrailingState: topTrailingState,
-                                                bottomTrailingState: bottomTrailingState,
-                                                angle: angle,
-                                                rotation: rotation,
-                                                isSelected: isSelected,
-                                                resizingHandle: resizingHandle,
-                                                rotationModel: RotationOverlayModel(size: size,
-                                                                                    magnification: magnification,
-                                                                                    topLeadingState: topLeadingState,
-                                                                                    bottomLeadingState: bottomLeadingState,
-                                                                                    topTrailingState: topTrailingState,
-                                                                                    bottomTrailingState: bottomTrailingState,
-                                                                                    angle: angle,
-                                                                                    rotation: rotation,
-                                                                                    isSelected: isSelected,
-                                                                                    handle: handle),
-                                                translationModel: DragGestureModel(offset: offset, dragState: dragState))
-                })
-            )
+            
+            switch dragType {
+            case .drag:
+                return AnyView(
+                   self.injectDependencies(initialSize: initialSize,
+                                         modifier: { (dependencies)   in
+                                           ResizableRotatable<ResizingHandle, RotationHandle, RotationOverlayModel, DragGestureModel>(
+                                                   initialSize: initialSize,
+                                                   dependencies: dependencies,
+                                                   resizingHandle: resizingHandle,
+                                                   rotationModel: RotationOverlayModel(dependencies: dependencies,
+                                                                                       handle: handle),
+                                                   translationModel: DragGestureModel(offset: dependencies.projectedValue.offset, dragState: dependencies.projectedValue.dragState))
+                   })
+                )
+            case .throwable(model: let model, threshold: let threshold):
+                return AnyView(
+                    self.injectDependencies(initialSize: initialSize,
+                                          modifier: { (dependencies)   in
+                                            ResizableRotatable<ResizingHandle, RotationHandle, RotationOverlayModel, ThrowableModel>(
+                                                    initialSize: initialSize,
+                                                    dependencies: dependencies,
+                                                    resizingHandle: resizingHandle,
+                                                    rotationModel: RotationOverlayModel(dependencies: dependencies,
+                                                                                        handle: handle),
+                                                    translationModel: ThrowableModel(offset: dependencies.projectedValue.offset, dragState: dependencies.projectedValue.dragState, model: model, threshold: threshold))
+                    })
+                )
+            }
+            
             
         case .spinnable(let model, let threshold, let handle):
-            return AnyView(
-                self.dependencyBuffer(initialSize: initialSize, modifier: { (offset, dragState, size, magnification, topLeadingState, bottomLeadingState, topTrailingState, bottomTrailingState, angle, rotation, isSelected)  in
-                    ResizableRotatable<
-                        ResizingHandle,
-                        RotationHandle,
-                        SpinnableModel,
-                    DragGestureModel
-                        >(initialSize: initialSize,
-                          offset: offset,
-                          dragState: dragState,
-                          size: size,
-                          magnification: magnification,
-                          topLeadingState: topLeadingState,
-                          bottomLeadingState: bottomLeadingState,
-                          topTrailingState: topTrailingState,
-                          bottomTrailingState: bottomTrailingState,
-                          angle: angle,
-                          rotation: rotation,
-                          isSelected: isSelected,
-                          resizingHandle: resizingHandle,
-                          rotationModel: SpinnableModel<RotationHandle>(size: size,
-                                                                        magnification: magnification,
-                                                                        topLeadingState: topLeadingState,
-                                                                        bottomLeadingState: bottomLeadingState,
-                                                                        topTrailingState: topTrailingState,
-                                                                        bottomTrailingState: bottomTrailingState,
-                                                                        angle: angle,
-                                                                        rotation: rotation,
-                                                                        isSelected: isSelected,
-                                                                        model: model,
-                                                                        threshold: threshold,
-                                                                        handle: handle),
-                          translationModel: DragGestureModel(offset: offset, dragState: dragState))
-                })
-            )
+            
+            switch dragType {
+            case .drag:
+                return AnyView(
+                    self.injectDependencies(initialSize: initialSize, modifier: { (dependencies)  in
+                        ResizableRotatable<ResizingHandle,RotationHandle,SpinnableModel, DragGestureModel>(
+                            initialSize: initialSize,
+                              dependencies: dependencies,
+                              resizingHandle: resizingHandle,
+                              rotationModel: SpinnableModel<RotationHandle>(dependencies: dependencies,
+                                                                            model: model,
+                                                                            threshold: threshold,
+                                                                            handle: handle),
+                              translationModel: DragGestureModel(offset: dependencies.projectedValue.offset, dragState: dependencies.projectedValue.dragState))
+                    })
+                )
+                
+            case .throwable( let vModel,  let vThreshold):
+                return AnyView(
+                    self.injectDependencies(initialSize: initialSize, modifier: { (dependencies)  in
+                        ResizableRotatable<ResizingHandle,RotationHandle,SpinnableModel, ThrowableModel>(
+                            initialSize: initialSize,
+                              dependencies: dependencies,
+                              resizingHandle: resizingHandle,
+                              rotationModel: SpinnableModel<RotationHandle>(dependencies: dependencies,
+                                                                            model: model,
+                                                                            threshold: threshold,
+                                                                            handle: handle),
+                              translationModel: ThrowableModel(offset: dependencies.projectedValue.offset, dragState: dependencies.projectedValue.dragState, model: vModel, threshold: vThreshold))
+                    })
+                )
+                
+            }
+            
         }
     }
 }

@@ -49,4 +49,20 @@ public extension View {
             })
         }
     }
+    
+    
+    
+    
+    func draggable(initialSize: CGSize = CGSize(width: 150, height: 250)) -> some View {
+        self.injectDependencies(initialSize: initialSize) { (dependencies) in
+            Draggable<DragGestureModel>(model: DragGestureModel(offset: dependencies.projectedValue.offset, dragState: dependencies.projectedValue.dragState))
+        }
+    }
+    
+    
+    func throwable(initialSize: CGSize = CGSize(width: 150, height: 250), model: VelocityModel = Velocity(), threshold: CGFloat = 0) -> some View {
+        self.injectDependencies(initialSize: initialSize) { (dependencies) in
+            Draggable<ThrowableModel>(model: ThrowableModel(offset: dependencies.projectedValue.offset, dragState: dependencies.projectedValue.dragState, model: model, threshold: threshold))
+        }
+    }
 }

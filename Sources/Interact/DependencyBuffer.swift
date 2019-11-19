@@ -9,6 +9,60 @@ import Foundation
 import SwiftUI
 
 
+@available(iOS 13.0, macOS 10.15, watchOS 6.0 , tvOS 13.0, *)
+public class GestureDependencies: ObservableObject {
+    @Published public var offset: CGSize = .zero
+    @Published public var dragState: TranslationState = DragGestureModel.DragState.inactive
+    @Published public var size: CGSize
+    @Published public var magnification: CGFloat = 1
+    @Published public var topLeadingState: CGSize = .zero
+    @Published public var bottomLeadingState: CGSize = .zero
+    @Published public var topTrailingState: CGSize = .zero
+    @Published public var bottomTrailingState: CGSize = .zero
+    @Published public var angle: CGFloat = 0
+    @Published public var rotation: CGFloat = 0
+    @Published public var isSelected: Bool = false
+    
+    
+    init(initialSize: CGSize) {
+        self.size = initialSize
+    }
+}
+
+@available(iOS 13.0, macOS 10.15, watchOS 6.0 , tvOS 13.0, *)
+public struct DependencyBuffer<Modifier: ViewModifier>: ViewModifier {
+    @ObservedObject var dependencies: GestureDependencies
+    
+    var modifier: (ObservedObject<GestureDependencies>) -> Modifier
+    
+    
+    init(initialSize: CGSize, modifier: @escaping (ObservedObject<GestureDependencies>) -> Modifier) {
+        self.dependencies = GestureDependencies(initialSize: initialSize)
+        self.modifier = modifier
+    }
+    
+    
+    public func body(content: Content) -> some View {
+        content
+        .frame(width: dependencies.size.width, height: dependencies.size.height)
+            .modifier(modifier(_dependencies))
+        
+    }
+}
+
+@available(iOS 13.0, macOS 10.15, watchOS 6.0 , tvOS 13.0, *)
+public extension View {
+    
+    func injectDependencies<Modifier: ViewModifier>(initialSize: CGSize, modifier: @escaping (ObservedObject<GestureDependencies>) -> Modifier) -> some View {
+        self.modifier(DependencyBuffer(initialSize: initialSize, modifier: modifier))
+    }
+    
+    
+}
+
+
+
+
 
 @available(iOS 13.0, macOS 10.15, watchOS 6.0 , tvOS 13.0, *)
 public struct GestureDependencyBuffer<Modifier: ViewModifier>: ViewModifier {
@@ -37,12 +91,6 @@ public struct GestureDependencyBuffer<Modifier: ViewModifier>: ViewModifier {
     public func body(content: Content) -> some View {
          content
             .frame(width: size.width, height: size.height)
-            .background(GeometryReader { proxy in
-                Rectangle().foregroundColor(.clear)
-                    .onAppear {
-                        self.size = self.initialSize
-                }
-            })
         .modifier(modifier($offset,
                            $dragState,
                            $size,
@@ -54,6 +102,17 @@ public struct GestureDependencyBuffer<Modifier: ViewModifier>: ViewModifier {
                            $angle,
                            $rotation,
                            $isSelected))
+        .background(GeometryReader { proxy in
+            Rectangle().foregroundColor(.clear)
+                .onAppear {
+                    if self.initialSize == .zero {
+                        self.size = proxy.size
+                    } else {
+                        self.size = self.initialSize
+                    }
+                    
+            }
+        })
     }
 }
 
