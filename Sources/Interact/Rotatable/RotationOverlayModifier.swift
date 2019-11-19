@@ -51,7 +51,7 @@ public struct RotationOverlay<Handle: View, R: RotationModel>: ViewModifier {
 @available(iOS 13.0, macOS 10.15, watchOS 6.0 , tvOS 13.0, *)
 public extension View {
     
-    func canRotate<RotationHandle: View>(initialSize: CGSize , rotationType: RotationType<RotationHandle>) -> some View  {
+    func rotatable<RotationHandle: View>(initialSize: CGSize , rotationType: RotationType<RotationHandle>) -> some View  {
             switch rotationType {
                 
             case .normal(let handle):

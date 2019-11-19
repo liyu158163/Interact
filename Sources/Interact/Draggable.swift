@@ -9,54 +9,26 @@ import Foundation
 import SwiftUI
 
 
-
 @available(iOS 13.0, macOS 10.15, watchOS 6.0 , tvOS 13.0, *)
-public struct Draggable: ViewModifier {
-    
-    @State var offset: CGSize = .zero
-    @State var dragState: CGSize = .zero
-    var shadowColor: Color
-    var shadowRadius: CGFloat
-    
-    init(shadowColor: Color = .gray, radius: CGFloat = 5) {
-        self.shadowColor = shadowColor
-        self.shadowRadius = radius
-    }
-    #if os(macOS)
-    var dragGesture: some Gesture {
-        DragGesture(minimumDistance: 5, coordinateSpace: .global)
-            .onChanged({ (value) in
-                self.dragState = CGSize(width: value.translation.width, height: -value.translation.height)
-            })
-            .onEnded { (value) in
-                self.offset.width += value.translation.width
-                self.offset.height -= value.translation.height
-                self.dragState = .zero
-        }
-    }
-    #else
-    var dragGesture: some Gesture {
-        DragGesture(minimumDistance: 5, coordinateSpace: .global)
-            .onChanged({ (value) in
-                self.dragState = value.translation
-            })
-            .onEnded { (value) in
-                self.offset.width += value.translation.width
-                self.offset.height += value.translation.height
-                self.dragState = .zero
-        }
-    }
-    #endif
+public struct Draggable<T: TranslationModel>: ViewModifier {
+    @ObservedObject var model: T
     
     
-    public func body(content: Content) -> some View  {
+    
+    public func body(content: Content) -> some View {
         content
-            .gesture(dragGesture)
-            .offset(x: dragState.width + offset.width,
-                    y: dragState.height + offset.height)
-            .shadow(color: shadowColor, radius: dragState != .zero ? shadowRadius : 0)
+            .gesture(model.gesture)
+            .offset(x: model.offset.width + model.gestureState.translation.width,
+                    y: model.offset.height + model.gestureState.translation.height)
+    }
+    
+    
+    public init(model: T) {
+        self.model = model
     }
 }
+
+
 
 
 @available(iOS 13.0, macOS 10.15, watchOS 6.0 , tvOS 13.0, *)
@@ -64,10 +36,17 @@ public extension View {
     
     /// Add To Drag Your View Around The Screen
     ///
-    ///   - note:
-    ///         If you want to resize or rotate you view as well make sure to this modifier last in the chain.  Not doing so will have unintended effects. The order draggable and throwable modifiers will always come last.
     ///
-    func draggable() -> some View {
-        self.modifier(Draggable())
+    func draggable(initialSize: CGSize, type: TranslationType) -> some View {
+        switch type {
+        case .drag:
+            return AnyView(self.dependencyBuffer(initialSize: initialSize) { (offset, dragState, size, magnification, topLeadingState, bottomLeadingState, topTrailingState, bottomTrailingState, angle, rotation, isSelected)  in
+                Draggable<DragGestureModel>(model: DragGestureModel(offset: offset, dragState: dragState))
+            })
+        case .throwable(let model, let threshold):
+            return AnyView(self.dependencyBuffer(initialSize: initialSize) { (offset, dragState, size, magnification, topLeadingState, bottomLeadingState, topTrailingState, bottomTrailingState, angle, rotation, isSelected)  in
+                Draggable<ThrowableModel>(model: ThrowableModel(offset: offset, dragState: dragState, model: model, threshold: threshold))
+            })
+        }
     }
 }

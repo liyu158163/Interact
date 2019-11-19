@@ -11,7 +11,7 @@ import SwiftUI
 /// Here I combined the rotation and resizable modifiers into one. I tried my best since the last version to simplify and reuse code that had been repeated again and again
 /// It may not be 100% perfect but I needed to make some compromises in the end about what I was really trying to accomplish. I would love to have the ability to combine modifiers, arbitrarily throught the dot syntax but its just not so easy. I tried implementing preference keys with data for all the different types of modifiers I created, but the overall design wasn't sound. I quickly realized that It was going to be way more work and labor intensive then this project itself.
 @available(iOS 13.0, macOS 10.15, watchOS 6.0 , tvOS 13.0, *)
-public struct ResizableRotatable<ResizingHandle: View, RotationHandle: View, R: RotationModel>: ViewModifier {
+public struct ResizableRotatable<ResizingHandle: View, RotationHandle: View, R: RotationModel, T: TranslationModel>: ViewModifier {
     
     // MARK: State
     
@@ -19,7 +19,7 @@ public struct ResizableRotatable<ResizingHandle: View, RotationHandle: View, R: 
     @ObservedObject var magnificationGestureModel: MagnificationGestureModel
     @ObservedObject var rotationModel: R
     @ObservedObject var rotationGestureModel: RotationGestureModel
-    @ObservedObject var dragGestureModel: DragGestureModel
+    @ObservedObject var dragGestureModel: T
 
     
     // MARK: Convienence Values
@@ -34,7 +34,7 @@ public struct ResizableRotatable<ResizingHandle: View, RotationHandle: View, R: 
         
         content
             .frame(width: resizableModel.size.width, height: resizableModel.size.height)
-            .simultaneousGesture(dragGestureModel.dragGesture)
+            .simultaneousGesture(dragGestureModel.gesture)
             .scaleEffect(magnificationGestureModel.magnification)
             .applyResizingScales(model: resizableModel)
             .onTapGesture {
@@ -47,14 +47,14 @@ public struct ResizableRotatable<ResizingHandle: View, RotationHandle: View, R: 
         .rotationEffect(Angle(radians: Double(currentAngle)))
         .simultaneousGesture(rotationGestureModel.rotationGesture)
         .overlay(self.rotationModel.overlay)
-        .offset(x: self.dragGestureModel.offset.width + dragGestureModel.dragState.width,
-                y: self.dragGestureModel.offset.height + dragGestureModel.dragState.height)
+        .offset(x: self.dragGestureModel.offset.width + dragGestureModel.gestureState.translation.width,
+                y: self.dragGestureModel.offset.height + dragGestureModel.gestureState.translation.height)
     }
     
     
     public init(initialSize: CGSize,
                 offset: Binding<CGSize>,
-                dragState: Binding<CGSize>,
+                dragState: Binding<TranslationState>,
                 size: Binding<CGSize>,
                 magnification: Binding<CGFloat>,
                 topLeadingState: Binding<CGSize>,
@@ -65,7 +65,8 @@ public struct ResizableRotatable<ResizingHandle: View, RotationHandle: View, R: 
                 rotation: Binding<CGFloat>,
                 isSelected: Binding<Bool>,
                 resizingHandle: @escaping (_ isSelected: Bool, _ isActive: Bool) -> ResizingHandle,
-                rotationModel: R) {
+                rotationModel: R,
+                translationModel: T) {
         
         self.resizableModel = ResizableOverlayModel(initialSize: initialSize,
                                                     offset: offset,
@@ -82,7 +83,7 @@ public struct ResizableRotatable<ResizingHandle: View, RotationHandle: View, R: 
         self.magnificationGestureModel = MagnificationGestureModel(size: size, magnification: magnification)
         self.rotationModel = rotationModel
         self.rotationGestureModel = RotationGestureModel(angle: angle, rotation: rotation)
-        self.dragGestureModel = DragGestureModel(offset: offset, dragState: dragState)
+        self.dragGestureModel = translationModel
         
     }
     
@@ -182,7 +183,7 @@ public extension View {
                                         ResizableRotatable<
                                             ResizingHandle,
                                             RotationHandle,
-                                            RotationOverlayModel>(
+                                            RotationOverlayModel, DragGestureModel>(
                                                 initialSize: initialSize,
                                                 offset: offset,
                                                 dragState: dragState,
@@ -205,7 +206,8 @@ public extension View {
                                                                                     angle: angle,
                                                                                     rotation: rotation,
                                                                                     isSelected: isSelected,
-                                                                                    handle: handle))
+                                                                                    handle: handle),
+                                                translationModel: DragGestureModel(offset: offset, dragState: dragState))
                 })
             )
             
@@ -215,7 +217,8 @@ public extension View {
                     ResizableRotatable<
                         ResizingHandle,
                         RotationHandle,
-                        SpinnableModel
+                        SpinnableModel,
+                    DragGestureModel
                         >(initialSize: initialSize,
                           offset: offset,
                           dragState: dragState,
@@ -240,7 +243,8 @@ public extension View {
                                                                         isSelected: isSelected,
                                                                         model: model,
                                                                         threshold: threshold,
-                                                                        handle: handle))
+                                                                        handle: handle),
+                          translationModel: DragGestureModel(offset: offset, dragState: dragState))
                 })
             )
         }

@@ -13,15 +13,17 @@ import SwiftUI
 /// The `Model` is any type conforming to the `VelocityModel` protocol. Create your own custom `VelocityModel`
 /// to add in additional calculations such as gravity, air resistance or some wacky forcefield.
 @available(iOS 13.0, macOS 10.15, watchOS 6.0 , tvOS 13.0, *)
-public class ThrowableModel: ObservableObject {
+public class ThrowableModel: ObservableObject, TranslationModel {
     
     // MARK: State
-    @Published var throwState = ThrowState.inactive
-    @Binding var offset: CGSize
+    @Binding public var gestureState: TranslationState
+    @Binding public var offset: CGSize
     var currentOffset: CGSize {
-        CGSize(width: offset.width + throwState.translation.width,
-               height: offset.height + throwState.translation.height)
+        CGSize(width: offset.width + gestureState.translation.width,
+               height: offset.height + gestureState.translation.height)
     }
+    
+    
     var velocityModel: VelocityModel
     /// Value used to scale the velocity of the drag gesture.
     var vScale: CGFloat = 0.3
@@ -31,7 +33,7 @@ public class ThrowableModel: ObservableObject {
     /// # Throw State
     /// Similar to the example given by apple in the composing gestures article.
     /// Additionally the drags velocity has been included so that upon ending the drag gesture the velocity can be used for animations.
-    enum ThrowState {
+    public enum ThrowState: TranslationState {
         case inactive
         case active(time: Date,
             translation: CGSize,
@@ -47,7 +49,7 @@ public class ThrowableModel: ObservableObject {
             }
         }
         /// `DragGesture`s time value
-        var translation: CGSize {
+        public var translation: CGSize {
             switch self {
             case .active(_, let translation, _):
                 return translation
@@ -111,7 +113,7 @@ public class ThrowableModel: ObservableObject {
     }
     
     func setVelocity() {
-        velocityModel.velocity = throwState.velocity
+        velocityModel.velocity = (gestureState as! ThrowState).velocity
     }
     
     
@@ -120,31 +122,36 @@ public class ThrowableModel: ObservableObject {
     
     /// Calculates the velocity of the drag gesture.
     func calculateDragVelocity(translation: CGSize, time: Date) -> CGSize {
-        if throwState.time == nil {
-            return .zero
+        if gestureState is ThrowState {
+            if  (gestureState as! ThrowState).time == nil {
+                return .zero
+            } else {
+                let deltaX = translation.width-gestureState.translation.width
+                let deltaY = translation.height-gestureState.translation.height
+                let deltaT = CGFloat((gestureState as! ThrowState).time!.timeIntervalSince(time))
+                
+                let vX = -vScale*deltaX/deltaT
+                let vY = -vScale*deltaY/deltaT
+                
+                return CGSize(width: vX, height: vY)
+            }
         } else {
-            let deltaX = translation.width-throwState.translation.width
-            let deltaY = translation.height-throwState.translation.height
-            let deltaT = CGFloat(throwState.time!.timeIntervalSince(time))
-            
-            let vX = -vScale*deltaX/deltaT
-            let vY = -vScale*deltaY/deltaT
-            
-            return CGSize(width: vX, height: vY)
+            return .zero 
         }
+        
     }
     
     
     // MARK: Throw Gesture
     
     #if os(macOS)
-        var throwGesture: some Gesture {
+        public var gesture: some Gesture {
             DragGesture(minimumDistance: 0, coordinateSpace: .global)
                 .onChanged { (value) in
                     self.reset()
                     let translation = CGSize(width: value.translation.width, height: -value.translation.height)
                     let velocity = self.calculateDragVelocity(translation: translation, time: value.time)
-                    self.throwState = .active(time: value.time,
+                    self.gestureState = ThrowState.active(time: value.time,
                                                     translation: translation,
                                                     velocity: velocity)
             }
@@ -152,23 +159,23 @@ public class ThrowableModel: ObservableObject {
                 
                 self.offset.width += value.translation.width
                 self.offset.height -= value.translation.height
-                if self.throwState.velocityMagnitude > self.threshold {
+                if (self.gestureState as! ThrowState).velocityMagnitude > self.threshold {
                     
                     self.start()
                     self.setVelocity()
                     
                 }
-                self.throwState = .inactive
+                self.gestureState = ThrowState.inactive
             }
         }
     
     #else
-    var throwGesture: some Gesture {
+    public var gesture: some Gesture {
         DragGesture(minimumDistance: 0, coordinateSpace: .global)
             .onChanged { (value) in
                 self.reset()
                 let velocity = self.calculateDragVelocity(translation: value.translation, time: value.time)
-                self.throwState = .active(time: value.time,
+                self.gestureState = ThrowState.active(time: value.time,
                                                 translation: value.translation,
                                                 velocity: velocity)
         }
@@ -176,13 +183,13 @@ public class ThrowableModel: ObservableObject {
             
             self.offset.width += value.translation.width
             self.offset.height += value.translation.height
-            if self.throwState.velocityMagnitude > self.threshold {
+            if (self.gestureState as! ThrowState).velocityMagnitude > self.threshold {
                 
                 self.start()
                 self.setVelocity()
                 
             }
-            self.throwState = .inactive
+            self.gestureState = ThrowState.inactive
         }
     }
     
@@ -192,8 +199,9 @@ public class ThrowableModel: ObservableObject {
     // MARK: Init
     
     /// Default model is `Velocity`
-    public init(offset: Binding<CGSize>, model: VelocityModel = Velocity(), threshold: CGFloat = 0) {
+    public init(offset: Binding<CGSize>, dragState: Binding<TranslationState>, model: VelocityModel = Velocity(), threshold: CGFloat = 0) {
         self._offset = offset
+        self._gestureState = dragState
         self.velocityModel = model
         self.threshold = threshold
     }

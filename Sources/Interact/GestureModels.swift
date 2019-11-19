@@ -12,45 +12,62 @@ import SwiftUI
 
 
 @available(iOS 13.0, macOS 10.15, watchOS 6.0 , tvOS 13.0, *)
-class DragGestureModel: ObservableObject {
+class DragGestureModel: TranslationModel, ObservableObject {
     
     // MARK: Drag Gesture
 
-    @Binding var dragState: CGSize
-    @Binding var offset: CGSize
+//    @Binding var dragState: CGSize
+    @Binding public var offset: CGSize
+    @Binding public var gestureState: TranslationState
+    
+    public enum DragState: TranslationState {
+        case inactive
+        case active(translation: CGSize)
+        
+        
+        
+        public var translation: CGSize {
+            switch self {
+            case .active(translation: let t):
+                return t
+            default:
+                return .zero
+            }
+        }
+    }
     
     
     #if os(macOS)
-    var dragGesture: some Gesture {
+    public var gesture: some Gesture {
         DragGesture(minimumDistance: 0, coordinateSpace: .global)
             .onChanged({ (value) in
-                self.dragState = CGSize(width: value.translation.width, height: -value.translation.height)
+                self.gestureState = DragState.active(translation: CGSize(width: value.translation.width, height: -value.translation.height))
             })
             .onEnded { (value) in
                 self.offset.width += value.translation.width
                 self.offset.height -= value.translation.height
-                self.dragState = .zero
+                self.gestureState = DragState.inactive
         }
     }
     
     #else
-    var dragGesture: some Gesture {
+    public var gesture: some Gesture {
         DragGesture(minimumDistance: 0, coordinateSpace: .global)
             .onChanged({ (value) in
-                self.dragState = value.translation
+                self.gestureState = DragState.active(translation: value.translation)
             })
             .onEnded { (value) in
                 self.offset.width += value.translation.width
                 self.offset.height += value.translation.height
-                self.dragState = .zero
+                self.gestureState = DragState.inactive
         }
     }
     #endif
     
     // MARK: Init
-    init(offset: Binding<CGSize>, dragState: Binding<CGSize>) {
+    public init(offset: Binding<CGSize>, dragState: Binding<TranslationState>) {
         self._offset = offset
-        self._dragState = dragState
+        self._gestureState = dragState
     }
 }
 
