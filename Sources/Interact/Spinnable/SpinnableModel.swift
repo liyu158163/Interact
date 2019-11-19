@@ -101,7 +101,7 @@ public class SpinnableModel<Handle: View>: ObservableObject, RotationModel {
     }
     
     var radius: CGFloat {
-        return size.height/2 + radialOffset
+        return magnification*size.height/2 + radialOffset
     }
     
     var dragWidths: CGFloat {
@@ -124,10 +124,10 @@ public class SpinnableModel<Handle: View>: ObservableObject, RotationModel {
         
         let angles = angle + gestureState.deltaTheta + rotation
         
-        let rX = sin(angles)*(radius - (1-magnification)*size.width/2)
-        let rY = -cos(angles)*(radius - (1-magnification)*size.height/2)
-        let x =   rX + cos(angle)*dragWidths/2 - sin(angle)*dragTopHeights
-        let y =   rY + cos(angle)*dragTopHeights + sin(angle)*dragWidths/2
+        let rX = sin(angles)*radius
+        let rY = -cos(angles)*radius
+        let x =   rX + cos(angles)*dragWidths/2 - sin(angles)*dragTopHeights
+        let y =   rY + cos(angles)*dragTopHeights + sin(angles)*dragWidths/2
         
         return CGSize(width: x, height: y)
     }
@@ -164,7 +164,7 @@ public class SpinnableModel<Handle: View>: ObservableObject, RotationModel {
     // MARK: Timer
     
     var timer = Timer()
-    var refreshRate: Double = 0.02
+    var refreshRate: Double = 0.005
     
     
     func start() {
