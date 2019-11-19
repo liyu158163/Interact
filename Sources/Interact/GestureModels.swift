@@ -16,7 +16,7 @@ class DragGestureModel: ObservableObject {
     
     // MARK: Drag Gesture
 
-    @Published var dragState: CGSize = .zero
+    @Binding var dragState: CGSize
     @Binding var offset: CGSize
     
     
@@ -48,8 +48,9 @@ class DragGestureModel: ObservableObject {
     #endif
     
     // MARK: Init
-    init(offset: Binding<CGSize>) {
+    init(offset: Binding<CGSize>, dragState: Binding<CGSize>) {
         self._offset = offset
+        self._dragState = dragState
     }
 }
 

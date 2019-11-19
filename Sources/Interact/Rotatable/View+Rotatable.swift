@@ -40,7 +40,7 @@ public extension View {
     ///             }
     ///
     func rotatable<Handle: View>(@ViewBuilder handle: @escaping (_ isSelected: Bool, _ isActive: Bool) -> Handle) -> some View  {
-        self.dependencyBuffer(initialSize: .zero) { (offset, size, magnification, topLeadingState, bottomLeadingState, topTrailingState, bottomTrailingState, angle, rotation, isSelected)  in
+        self.dependencyBuffer(initialSize: .zero) { (offset, dragState, size, magnification, topLeadingState, bottomLeadingState, topTrailingState, bottomTrailingState, angle, rotation, isSelected)  in
             Rotatable(
                 size: size,
                 magnification: magnification,

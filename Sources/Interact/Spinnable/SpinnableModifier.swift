@@ -22,7 +22,7 @@ public struct Spinnable<Handle: View>: ViewModifier {
                 angle: Binding<CGFloat>,
                 rotation: Binding<CGFloat>,
                 isSelected: Binding<Bool>,
-                model: AngularVelocityModel = AngularVelocity(),
+                model: AngularVelocityModel,
                 threshold: CGFloat = 0,
                 handle: @escaping (_ isSelected: Bool, _ isActive: Bool) -> Handle) {
         
@@ -44,11 +44,14 @@ public struct Spinnable<Handle: View>: ViewModifier {
     }
     
     var currentAngle: CGFloat {
-        spinModel.angle + spinModel.gestureState.deltaTheta + rotationGestureModel.rotationState
+        rotationGestureModel.angle  + rotationGestureModel.rotationState
     }
     
     public func body(content: Content) -> some View  {
         content
+            .onAppear(perform: {
+                self.spinModel.angle = 0
+            })
             .rotationEffect(Angle(radians: Double(currentAngle)))
             .gesture(rotationGestureModel.rotationGesture)
             .overlay(self.spinModel.overlay)

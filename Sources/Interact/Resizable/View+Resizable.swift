@@ -54,6 +54,7 @@ public struct ResizableRotatable<ResizingHandle: View, RotationHandle: View, R: 
     
     public init(initialSize: CGSize,
                 offset: Binding<CGSize>,
+                dragState: Binding<CGSize>,
                 size: Binding<CGSize>,
                 magnification: Binding<CGFloat>,
                 topLeadingState: Binding<CGSize>,
@@ -81,7 +82,7 @@ public struct ResizableRotatable<ResizingHandle: View, RotationHandle: View, R: 
         self.magnificationGestureModel = MagnificationGestureModel(size: size, magnification: magnification)
         self.rotationModel = rotationModel
         self.rotationGestureModel = RotationGestureModel(angle: angle, rotation: rotation)
-        self.dragGestureModel = DragGestureModel(offset: offset)
+        self.dragGestureModel = DragGestureModel(offset: offset, dragState: dragState)
         
     }
     
@@ -110,7 +111,7 @@ public extension View {
     ///
     func resizable<Handle: View>(initialSize: CGSize, @ViewBuilder handle: @escaping (_ isSelected: Bool, _ isActive: Bool) -> Handle) -> some View {
         
-        self.dependencyBuffer(initialSize: initialSize) { (offset, size, magnification, topLeadingState, bottomLeadingState, topTrailingState, bottomTrailingState, angle, rotation, isSelected)  in
+        self.dependencyBuffer(initialSize: initialSize) { (offset, dragState, size, magnification, topLeadingState, bottomLeadingState, topTrailingState, bottomTrailingState, angle, rotation, isSelected)  in
             Resizable(initialSize: initialSize,
                       offset: offset,
                       size: size,
@@ -177,13 +178,14 @@ public extension View {
         case .normal(let handle):
             return AnyView(
                 self.dependencyBuffer(initialSize: initialSize,
-                                      modifier: { (offset, size, magnification, topLeadingState, bottomLeadingState, topTrailingState, bottomTrailingState, angle, rotation, isSelected)   in
+                                      modifier: { (offset, dragState, size, magnification, topLeadingState, bottomLeadingState, topTrailingState, bottomTrailingState, angle, rotation, isSelected)   in
                                         ResizableRotatable<
                                             ResizingHandle,
                                             RotationHandle,
                                             RotationOverlayModel>(
                                                 initialSize: initialSize,
                                                 offset: offset,
+                                                dragState: dragState,
                                                 size: size,
                                                 magnification: magnification,
                                                 topLeadingState: topLeadingState,
@@ -209,13 +211,14 @@ public extension View {
             
         case .spinnable(let model, let threshold, let handle):
             return AnyView(
-                self.dependencyBuffer(initialSize: initialSize, modifier: { (offset, size, magnification, topLeadingState, bottomLeadingState, topTrailingState, bottomTrailingState, angle, rotation, isSelected)  in
+                self.dependencyBuffer(initialSize: initialSize, modifier: { (offset, dragState, size, magnification, topLeadingState, bottomLeadingState, topTrailingState, bottomTrailingState, angle, rotation, isSelected)  in
                     ResizableRotatable<
                         ResizingHandle,
                         RotationHandle,
                         SpinnableModel
                         >(initialSize: initialSize,
                           offset: offset,
+                          dragState: dragState,
                           size: size,
                           magnification: magnification,
                           topLeadingState: topLeadingState,

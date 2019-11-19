@@ -42,7 +42,7 @@ public class SpinnableModel<Handle: View>: ObservableObject, RotationModel {
     /// Used to keep track of a drag gesture that is constrained to a circle.
     /// Allows access to variables such as the change in angle `deltaTheta`
     ///  or the `angularVelocity` of a `DragGesture` Constrained to a radius.
-    enum SpinState: RotationOverlayState {
+    public enum SpinState: RotationOverlayState {
         case inactive
         case active(translation: CGSize, time: Date?, deltaTheta: CGFloat, angularVelocity: CGFloat)
         
@@ -66,7 +66,7 @@ public class SpinnableModel<Handle: View>: ObservableObject, RotationModel {
         }
         /// The change in angle from the last translation to the current translation.
         /// A computed value that requires the drag be constrained to a radius.
-        var deltaTheta: CGFloat {
+        public var deltaTheta: CGFloat {
             switch self {
             case .active(_, _, let angle, _):
                 return angle
@@ -221,7 +221,7 @@ public class SpinnableModel<Handle: View>: ObservableObject, RotationModel {
                 angle: Binding<CGFloat>,
                 rotation: Binding<CGFloat>,
                 isSelected: Binding<Bool>,
-                model: AngularVelocityModel = AngularVelocity(),
+                model: AngularVelocityModel,
                 threshold: CGFloat = 0,
                 handle: @escaping (_ isSelected: Bool, _ isActive: Bool) -> Handle) {
         
