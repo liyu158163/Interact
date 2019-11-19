@@ -16,8 +16,8 @@ public class SpinnableModel<Handle: View>: ObservableObject, RotationModel {
     
     // MARK: State
     var model: AngularVelocityModel
-    @Binding public var size: CGSize
-    @Binding public var magnification: CGFloat
+    @Binding var size: CGSize
+    @Binding var magnification: CGFloat
     @Binding var topLeadState: CGSize
     @Binding var bottomLeadState: CGSize
     @Binding var topTrailState: CGSize
