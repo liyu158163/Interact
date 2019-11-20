@@ -169,7 +169,7 @@ public class SpinnableModel<Handle: View>: ObservableObject, RotationModel {
     
     func start() {
         self.timer = Timer.scheduledTimer(withTimeInterval: refreshRate , repeats: true) { timer in
-            let aV = self.model.getAngularVelocity(angle: self.angle)
+            let aV = self.model.getAngularVelocity(angle: self.angle, refreshRate: CGFloat(self.refreshRate))
             self.angle += aV*CGFloat(self.refreshRate)
         }
     }

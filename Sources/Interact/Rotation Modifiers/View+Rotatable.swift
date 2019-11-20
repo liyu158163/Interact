@@ -30,7 +30,7 @@ public extension View {
             })
         case .throwable(let model, let threshold):
             return AnyView(self.injectDependencies(initialSize: initialSize) { (dependencies)  in
-                RotationDraggable<RotationHandle, RotationOverlayModel, ThrowableModel>(dependencies: dependencies, includesRotationGesture: includesRotationGesture, rotationModel: RotationOverlayModel<RotationHandle>(dependencies: dependencies, handle: handle), translationModel: ThrowableModel(offset: dependencies.projectedValue.offset, dragState: dependencies.projectedValue.dragState, model: model, threshold: threshold))
+                RotationDraggable<RotationHandle, RotationOverlayModel, ThrowableModel>(dependencies: dependencies, includesRotationGesture: includesRotationGesture, rotationModel: RotationOverlayModel<RotationHandle>(dependencies: dependencies, handle: handle), translationModel: ThrowableModel(dependencies: dependencies, model: model, threshold: threshold))
                 
             })
         }
@@ -53,7 +53,7 @@ public extension View {
         case .throwable(let vModel, let vThreshold):
             return AnyView(self.injectDependencies(initialSize: initialSize) { (dependencies)  in
                 
-                RotationDraggable<RotationHandle, SpinnableModel, ThrowableModel>(dependencies: dependencies, includesRotationGesture: includesRotationGesture, rotationModel: SpinnableModel<RotationHandle>(dependencies: dependencies, model: model, threshold: threshold, handle: handle), translationModel: ThrowableModel(offset: dependencies.projectedValue.offset, dragState: dependencies.projectedValue.dragState, model: vModel, threshold: vThreshold))
+                RotationDraggable<RotationHandle, SpinnableModel, ThrowableModel>(dependencies: dependencies, includesRotationGesture: includesRotationGesture, rotationModel: SpinnableModel<RotationHandle>(dependencies: dependencies, model: model, threshold: threshold, handle: handle), translationModel: ThrowableModel(dependencies: dependencies, model: vModel, threshold: vThreshold))
             })
         }
         

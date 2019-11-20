@@ -33,32 +33,36 @@ public struct RotationDraggable<Handle: View, R: RotationModel, T: DragModel>: V
     
     public func body(content: Content) -> some View  {
         includesRotationGesture ?
-            AnyView(content
-                .onTapGesture {
-                    withAnimation(.easeIn(duration: 0.2)) {
-                        self.rotationModel.isSelected.toggle()
-                    }
+            ZStack {
+                AnyView(content
+                    .onTapGesture {
+                        withAnimation(.easeIn(duration: 0.2)) {
+                            self.rotationModel.isSelected.toggle()
+                        }
+                }
+                .simultaneousGesture(translationModel.gesture)
+                .rotationEffect(Angle(radians: Double(currentAngle)))
+                .simultaneousGesture(rotationGestureModel.rotationGesture)
+                .overlay(self.rotationModel.overlay)
+                .offset(x: translationModel.offset.width + translationModel.gestureState.translation.width,
+                        y: translationModel.offset.height + translationModel.gestureState.translation.height)
+                )
             }
-            .simultaneousGesture(translationModel.gesture)
-            .rotationEffect(Angle(radians: Double(currentAngle)))
-            .simultaneousGesture(rotationGestureModel.rotationGesture)
-            .overlay(self.rotationModel.overlay)
-            .offset(x: translationModel.offset.width + translationModel.gestureState.translation.width,
-                    y: translationModel.offset.height + translationModel.gestureState.translation.height)
-            )
             :
-            AnyView(content
-                .onTapGesture {
-                    withAnimation(.easeIn(duration: 0.2)) {
-                        self.rotationModel.isSelected.toggle()
-                    }
-            }
-            .simultaneousGesture(translationModel.gesture)
-            .rotationEffect(Angle(radians: Double(currentAngle)))
-            .overlay(self.rotationModel.overlay)
-            .offset(x: translationModel.offset.width + translationModel.gestureState.translation.width,
-                    y: translationModel.offset.height + translationModel.gestureState.translation.height)
-        )
+            ZStack {
+                AnyView(content
+                    .onTapGesture {
+                        withAnimation(.easeIn(duration: 0.2)) {
+                            self.rotationModel.isSelected.toggle()
+                        }
+                }
+                .simultaneousGesture(translationModel.gesture)
+                .rotationEffect(Angle(radians: Double(currentAngle)))
+                .overlay(self.rotationModel.overlay)
+                .offset(x: translationModel.offset.width + translationModel.gestureState.translation.width,
+                        y: translationModel.offset.height + translationModel.gestureState.translation.height)
+        )}
+        
     }
 }
 

@@ -14,7 +14,7 @@ import SwiftUI
 @available(iOS 13.0, macOS 10.15, watchOS 6.0 , tvOS 13.0, *)
 public protocol AngularVelocityModel {
     var angularVelocity: CGFloat { get set }
-    func getAngularVelocity(angle: CGFloat) -> CGFloat
+    func getAngularVelocity(angle: CGFloat, refreshRate: CGFloat) -> CGFloat
 }
 
 
@@ -24,7 +24,7 @@ public protocol AngularVelocityModel {
 @available(iOS 13.0, macOS 10.15, watchOS 6.0 , tvOS 13.0, *)
 public class AngularVelocity: AngularVelocityModel {
     public var angularVelocity: CGFloat = 0
-    public func getAngularVelocity(angle: CGFloat) -> CGFloat {
+    public func getAngularVelocity(angle: CGFloat, refreshRate: CGFloat = 0.001) -> CGFloat {
         return angularVelocity
     }
     
@@ -34,3 +34,21 @@ public class AngularVelocity: AngularVelocityModel {
     }
 }
 
+
+/// # Angular Velocity With Friction
+/// It just houses the velocity.
+@available(iOS 13.0, macOS 10.15, watchOS 6.0 , tvOS 13.0, *)
+public class FrictionalAngularVelocity: AngularVelocityModel {
+    public var angularVelocity: CGFloat = 0
+    public var friction: CGFloat = 0.01
+    public func getAngularVelocity(angle: CGFloat, refreshRate: CGFloat = 0.001) -> CGFloat {
+        let deltaAV = -angularVelocity*friction
+        angularVelocity += deltaAV
+        return angularVelocity
+    }
+    
+    
+    public init(angularVelocity: CGFloat = 0) {
+        self.angularVelocity = angularVelocity
+    }
+}

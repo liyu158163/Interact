@@ -16,6 +16,8 @@ import SwiftUI
 public class ThrowableModel: ObservableObject, DragModel {
     
     // MARK: State
+    @Binding public var parentFrame: CGRect
+    @Binding public var size: CGSize
     @Binding public var gestureState: TranslationState
     @Binding public var offset: CGSize
     var currentOffset: CGSize {
@@ -40,7 +42,7 @@ public class ThrowableModel: ObservableObject, DragModel {
             velocity: CGSize)
         
         /// `DragGesture`'s translation value
-        var time: Date? {
+        public var time: Date? {
             switch self {
             case .active(let time, _, _):
                 return time
@@ -90,13 +92,13 @@ public class ThrowableModel: ObservableObject, DragModel {
     
     // MARK: Timer
     var timer = Timer()
-    var refreshRate: Double = 0.005
+    var refreshRate: Double = 0.001
     
     // uses the formula c = x + v*t ,
     // where d, x, v, and t are the current offset, offset, velocity, and time respectively.
     func start() {
         self.timer = Timer.scheduledTimer(withTimeInterval: refreshRate , repeats: true) { timer in
-            let v = self.velocityModel.getVelocity(offset: self.offset)
+            let v = self.velocityModel.getVelocity(offset: self.offset, parentFrame: self.parentFrame, size: self.size, refreshRate: CGFloat(self.refreshRate))
             self.offset.width += v.width*CGFloat(self.refreshRate)
             self.offset.height += v.height*CGFloat(self.refreshRate)
         }
@@ -113,7 +115,7 @@ public class ThrowableModel: ObservableObject, DragModel {
     }
     
     func setVelocity() {
-        velocityModel.velocity = (gestureState as! ThrowState).velocity
+        velocityModel.velocity = gestureState.velocity
     }
     
     
@@ -122,22 +124,22 @@ public class ThrowableModel: ObservableObject, DragModel {
     
     /// Calculates the velocity of the drag gesture.
     func calculateDragVelocity(translation: CGSize, time: Date) -> CGSize {
-        if gestureState is ThrowState {
-            if  (gestureState as! ThrowState).time == nil {
-                return .zero
-            } else {
-                let deltaX = translation.width-gestureState.translation.width
-                let deltaY = translation.height-gestureState.translation.height
-                let deltaT = CGFloat((gestureState as! ThrowState).time!.timeIntervalSince(time))
-                
-                let vX = -vScale*deltaX/deltaT
-                let vY = -vScale*deltaY/deltaT
-                
-                return CGSize(width: vX, height: vY)
-            }
-        } else {
-            return .zero 
+        if gestureState.time == nil {
+            return .zero
         }
+        
+        let deltaX = translation.width-gestureState.translation.width
+        let deltaY = translation.height-gestureState.translation.height
+        let deltaT = CGFloat(gestureState.time!.timeIntervalSince(time))
+        
+        if deltaT == 0 {
+            return .zero
+        }
+        
+        let vX = -vScale*deltaX/deltaT
+        let vY = -vScale*deltaY/deltaT
+        
+        return CGSize(width: vX, height: vY)
         
     }
     
@@ -199,9 +201,11 @@ public class ThrowableModel: ObservableObject, DragModel {
     // MARK: Init
     
     /// Default model is `Velocity`
-    public init(offset: Binding<CGSize>, dragState: Binding<TranslationState>, model: VelocityModel = Velocity(), threshold: CGFloat = 0) {
-        self._offset = offset
-        self._gestureState = dragState
+    public init(dependencies: ObservedObject<GestureDependencies>, model: VelocityModel = Velocity(), threshold: CGFloat = 0) {
+        self._parentFrame = dependencies.projectedValue.parentFrame
+        self._size = dependencies.projectedValue.size
+        self._offset = dependencies.projectedValue.offset
+        self._gestureState = dependencies.projectedValue.dragState
         self.velocityModel = model
         self.threshold = threshold
     }

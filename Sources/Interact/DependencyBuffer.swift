@@ -11,6 +11,7 @@ import SwiftUI
 
 @available(iOS 13.0, macOS 10.15, watchOS 6.0 , tvOS 13.0, *)
 public class GestureDependencies: ObservableObject {
+    @Published public var parentFrame: CGRect = .zero
     @Published public var offset: CGSize = .zero
     @Published public var dragState: TranslationState = DragGestureModel.DragState.inactive
     @Published public var size: CGSize
@@ -47,9 +48,13 @@ public struct DependencyBuffer<Modifier: ViewModifier>: ViewModifier {
     
     
     public func body(content: Content) -> some View {
-        content
-        .frame(width: dependencies.size.width, height: dependencies.size.height)
-            .modifier(modifier(_dependencies))
+        GeometryReader { proxy in
+            content.onAppear(perform: {
+                self.dependencies.parentFrame = proxy.frame(in: .local)
+            })
+                .frame(width: self.dependencies.size.width, height: self.dependencies.size.height, alignment: .center)
+                .modifier(self.modifier(self._dependencies))
+        }
         
     }
 }

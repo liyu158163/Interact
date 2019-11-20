@@ -1,5 +1,5 @@
 //
-//  DragGestureModel.swift
+//  DraggableView.swift
 //  
 //
 //  Created by Kieran Brown on 11/20/19.
@@ -9,14 +9,15 @@ import Foundation
 import SwiftUI
 
 
-@available(iOS 13.0, macOS 10.15, watchOS 6.0 , tvOS 13.0, *)
-public class DragGestureModel: DragModel, ObservableObject {
-    
-    // MARK: Drag Gesture
 
+
+@available(iOS 13.0, macOS 10.15, watchOS 6.0 , tvOS 13.0, *)
+public struct DraggableView<Content: View>: View {
     
-    @Binding public var offset: CGSize
-    @Binding public var gestureState: TranslationState
+    var content: (CGSize) -> Content
+    
+    @State public var offset: CGSize = .zero
+    @State public var gestureState: DragState = .inactive
     
     public enum DragState: TranslationState {
         case inactive
@@ -65,7 +66,9 @@ public class DragGestureModel: DragModel, ObservableObject {
         let deltaX = translation.width-gestureState.translation.width
                        let deltaY = translation.height-gestureState.translation.height
                        let deltaT = CGFloat(gestureState.time!.timeIntervalSince(time))
-                       
+        if deltaT == 0 {
+            return .zero
+        }
                        let vX = -deltaX/deltaT
                        let vY = -deltaY/deltaT
                        
@@ -82,16 +85,21 @@ public class DragGestureModel: DragModel, ObservableObject {
                 .onChanged { (value) in
                     let translation = CGSize(width: value.translation.width, height: -value.translation.height)
                     let velocity = self.calculateDragVelocity(translation: translation, time: value.time)
-                    self.gestureState = DragState.active(time: value.time,
-                                                    translation: translation,
-                                                    velocity: velocity)
+                    withAnimation(.linear) {
+                        self.gestureState = DragState.active(time: value.time,
+                        translation: translation,
+                        velocity: velocity)
+                    }
             }
             .onEnded { (value) in
                 
-                self.offset.width += value.translation.width
-                self.offset.height -= value.translation.height
+                withAnimation(.linear) {
+                    self.offset.width += value.translation.width
+                    self.offset.height -= value.translation.height
+                    self.gestureState = DragState.inactive
+                }
                 
-                self.gestureState = DragState.inactive
+                
             }
         }
     
@@ -108,16 +116,22 @@ public class DragGestureModel: DragModel, ObservableObject {
             
             self.offset.width += value.translation.width
             self.offset.height += value.translation.height
-            i
+            
             self.gestureState = DragState.inactive
         }
     }
     
     #endif
     
-    // MARK: Init
-    public init(offset: Binding<CGSize>, dragState: Binding<TranslationState>) {
-        self._offset = offset
-        self._gestureState = dragState
+    public init(content: @escaping (CGSize) -> Content) {
+        self.content = content
     }
+    
+    public var body: some View {
+        content(gestureState.velocity)
+        .gesture(gesture)
+        .offset(x: offset.width + gestureState.translation.width,
+                y: offset.height + gestureState.translation.height)
+    }
+    
 }

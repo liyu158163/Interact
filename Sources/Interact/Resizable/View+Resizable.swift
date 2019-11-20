@@ -176,7 +176,7 @@ public extension View {
                                                     resizingHandle: resizingHandle,
                                                     rotationModel: RotationOverlayModel(dependencies: dependencies,
                                                                                         handle: handle),
-                                                    translationModel: ThrowableModel(offset: dependencies.projectedValue.offset, dragState: dependencies.projectedValue.dragState, model: model, threshold: threshold))
+                                                    translationModel: ThrowableModel(dependencies: dependencies, model: model, threshold: threshold))
                     })
                 )
             }
@@ -211,7 +211,7 @@ public extension View {
                                                                             model: model,
                                                                             threshold: threshold,
                                                                             handle: handle),
-                              translationModel: ThrowableModel(offset: dependencies.projectedValue.offset, dragState: dependencies.projectedValue.dragState, model: vModel, threshold: vThreshold))
+                              translationModel: ThrowableModel(dependencies: dependencies, model: vModel, threshold: vThreshold))
                     })
                 )
                 

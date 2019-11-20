@@ -30,24 +30,28 @@ public struct RotationOverlayModifier<Handle: View, R: RotationModel>: ViewModif
     
     public func body(content: Content) -> some View  {
         includesRotationGesture ?
-        AnyView(content
-            .rotationEffect(Angle(radians: Double(currentAngle)))
-            .simultaneousGesture(rotationGestureModel.rotationGesture)
-            .overlay(self.model.overlay)
-            .onTapGesture {
-                withAnimation(.easeIn(duration: 0.2)) {
-                    self.model.isSelected.toggle()
-                }
-        })
+            ZStack {
+                AnyView(content
+                    .rotationEffect(Angle(radians: Double(currentAngle)))
+                    .simultaneousGesture(rotationGestureModel.rotationGesture)
+                    .overlay(self.model.overlay)
+                    .onTapGesture {
+                        withAnimation(.easeIn(duration: 0.2)) {
+                            self.model.isSelected.toggle()
+                        }
+                })
+            }
         :
-        AnyView(content
-            .rotationEffect(Angle(radians: Double(currentAngle)))
-            .overlay(self.model.overlay)
-            .onTapGesture {
-                withAnimation(.easeIn(duration: 0.2)) {
-                    self.model.isSelected.toggle()
-                }
-        })
+            ZStack {
+                AnyView(content
+                    .rotationEffect(Angle(radians: Double(currentAngle)))
+                    .overlay(self.model.overlay)
+                    .onTapGesture {
+                        withAnimation(.easeIn(duration: 0.2)) {
+                            self.model.isSelected.toggle()
+                        }
+                })
+        }
     }
 }
 
