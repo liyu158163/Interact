@@ -12,8 +12,12 @@ If you like this library then check out [PartitionKit](https://github.com/kieran
 I am currently for hire and have a huge library of responsive components not released anywhere, hire me and you get access. If interested send an email to kb6627500@gmail.com .
 
 
- <video src="https://github.com/kieranb662/Interact/blob/master/InteractAllTypes.mp4" controls preload></video>
 
+<div class="video_container">
+  <video controls="controls" allowfullscreen="true" poster="path/to/poster_image.png">
+    <source src="https://github.com/kieranb662/Interact/blob/master/InteractAllTypes.mp4" type="video/mp4">
+  </video> 
+</div>
 
 
 ## Requirements 
