@@ -77,7 +77,7 @@ public struct DraggableView<Content: View>: View {
     }
     
     
-    // MARK: Throw Gesture
+    // MARK: Gesture 
     
     #if os(macOS)
         public var gesture: some Gesture {

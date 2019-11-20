@@ -27,28 +27,6 @@ public struct Draggable<T: DragModel>: ViewModifier {
     }
 }
 
-//@available(iOS 13.0, macOS 10.15, watchOS 6.0 , tvOS 13.0, *)
-//public struct VEffect<VelocityEffect: ViewModifier>: ViewModifier {
-//
-//    var velocityEffect: (CGSize) -> VelocityEffect
-//
-//
-//    public func body(content: Content) -> some View {
-//        content
-//            .modifier(velocityEffect(model.gestureState.velocity))
-//    }
-//
-//
-//    public init(velocityEffect: @escaping (CGSize) -> VelocityEffect) {
-//        self.velocityEffect = velocityEffect
-//    }
-//}
-
-
-
-
-
-
 
 
 @available(iOS 13.0, macOS 10.15, watchOS 6.0 , tvOS 13.0, *)
