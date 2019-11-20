@@ -11,7 +11,7 @@ If you like this library then check out [PartitionKit](https://github.com/kieran
 
 I am currently for hire and have a huge library of responsive components not released anywhere, hire me and you get access. If interested send an email to kb6627500@gmail.com .
 
- <p align="center"><img src="InteractAllTypesPhotoshop.gif" width="800"> </p>
+ <p align="center"><img src="https://github.com/kieranb662/Interact/blob/master/InteractAllTypes.gif" width="800"> </p>
 
 
 
