@@ -12,7 +12,7 @@ If you like this library then check out [PartitionKit](https://github.com/kieran
 I am currently for hire and have a huge library of responsive components not released anywhere, hire me and you get access. If interested send an email to kb6627500@gmail.com .
 
 
- <p align="center"><video src="/InteractAllTypes.mp4" width="320" height="200" controls preload></video></p>
+ <p align="center"><video src="https://github.com/kieranb662/Interact/blob/master/InteractAllTypes.mp4" controls preload></video></p>
 
 
 
