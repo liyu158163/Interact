@@ -1,16 +1,12 @@
 //
-//  GestureModels.swift
+//  RotationGestureModel.swift
 //  
 //
-//  Created by Kieran Brown on 11/18/19.
+//  Created by Kieran Brown on 11/20/19.
 //
 
 import Foundation
 import SwiftUI
-
-
-
-
 
 
 
@@ -39,5 +35,3 @@ class RotationGestureModel: ObservableObject {
         self._rotationState = rotation
     }
 }
-
-
