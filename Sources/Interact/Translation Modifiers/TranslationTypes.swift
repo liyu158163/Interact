@@ -15,6 +15,8 @@ import SwiftUI
 public protocol TranslationState {
     
     var translation: CGSize { get }
+    var velocity: CGSize { get }
+    var velocityMagnitude: CGFloat { get }
     
 }
 

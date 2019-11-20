@@ -46,9 +46,9 @@ public struct ResizableRotatable<ResizingHandle: View, RotationHandle: View, R: 
         .overlay(resizableModel.overlay)
         .rotationEffect(Angle(radians: Double(currentAngle)))
         .simultaneousGesture(rotationGestureModel.rotationGesture)
-        .overlay(self.rotationModel.overlay)
-        .offset(x: self.dragGestureModel.offset.width + dragGestureModel.gestureState.translation.width,
-                y: self.dragGestureModel.offset.height + dragGestureModel.gestureState.translation.height)
+        .overlay(rotationModel.overlay)
+        .offset(x: dragGestureModel.offset.width + dragGestureModel.gestureState.translation.width,
+                y: dragGestureModel.offset.height + dragGestureModel.gestureState.translation.height)
     }
     
     

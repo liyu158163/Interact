@@ -23,46 +23,13 @@ public class RotationOverlayModel<Handle: View>: ObservableObject, RotationModel
     // distance from the top of the view to the rotation handle
     var radialOffset: CGFloat = 50
     @Binding public var angle: CGFloat
-    @Published public var gestureState: RotationOverlayState = RotationState.inactive
-    @Binding var rotation: CGFloat
+    @Binding public var gestureState: RotationOverlayState
+    @Binding public var rotation: CGFloat
     @Binding public var isSelected: Bool
     
     var handle: (Bool, Bool) -> Handle
     
-    /// Use to model the state of the rotation handles drag gesture.
-    /// The movement of the rotation handle is restricted to the radius of the circle given by half the height of the rotated view plus the `radialOffset`
-    enum RotationState: RotationOverlayState {
-        case inactive
-        case active(translation: CGSize, deltaTheta: CGFloat)
-        
-        /// `DragGesture`'s translation value
-        var translation: CGSize {
-            switch self {
-            case .active(let translation, _):
-                return translation
-            default:
-                return .zero
-            }
-        }
-        /// Value calculated by restricting the translation to a specific radius.
-        var deltaTheta: CGFloat {
-            switch self {
-            case .active(_, let angle):
-                return angle
-            default:
-                return .zero
-            }
-        }
-        
-        var isActive: Bool {
-            switch self {
-            case .active(_ , _):
-                return true
-            default:
-                return false
-            }
-        }
-    }
+   
     
     var radius: CGFloat {
         magnification*size.height/2 + radialOffset
@@ -113,7 +80,7 @@ public class RotationOverlayModel<Handle: View>: ObservableObject, RotationModel
     
     public var overlay: some View {
         ZStack {
-            handle(isSelected, (gestureState as! RotationState).isActive)
+            handle(isSelected, gestureState.isActive)
         }
         .offset(rotationalOffset)
         .gesture(
@@ -146,9 +113,56 @@ public class RotationOverlayModel<Handle: View>: ObservableObject, RotationModel
         self._topTrailState = dependencies.projectedValue.topTrailingState
         self._bottomTrailState = dependencies.projectedValue.bottomTrailingState
         self._angle = dependencies.projectedValue.angle
+        self._gestureState = dependencies.projectedValue.rotationOverlayState
         self._rotation = dependencies.projectedValue.rotation
         self._isSelected = dependencies.projectedValue.isSelected
         self.handle = handle
     }
     
 }
+
+
+/// Use to model the state of the rotation handles drag gesture.
+   /// The movement of the rotation handle is restricted to the radius of the circle given by half the height of the rotated view plus the `radialOffset`
+   public enum RotationState: RotationOverlayState {
+       case inactive
+       case active(translation: CGSize, deltaTheta: CGFloat)
+       
+       
+       public var time: Date? {
+           nil
+       }
+       
+       
+       /// `DragGesture`'s translation value
+       var translation: CGSize {
+           switch self {
+           case .active(let translation, _):
+               return translation
+           default:
+               return .zero
+           }
+       }
+       /// Value calculated by restricting the translation to a specific radius.
+       public var deltaTheta: CGFloat {
+           switch self {
+           case .active(_, let angle):
+               return angle
+           default:
+               return .zero
+           }
+       }
+       
+       public var angularVelocity: CGFloat {
+           0
+       }
+       
+       public var isActive: Bool {
+           switch self {
+           case .active(_ , _):
+               return true
+           default:
+               return false
+           }
+       }
+   }

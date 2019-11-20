@@ -34,6 +34,16 @@ class DragGestureModel: TranslationModel, ObservableObject {
                 return .zero
             }
         }
+        
+        
+        public var velocity: CGSize {
+            return .zero
+        }
+        
+        
+        public var velocityMagnitude: CGFloat {
+            return 0
+        }
     }
     
     

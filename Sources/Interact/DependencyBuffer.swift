@@ -20,6 +20,7 @@ public class GestureDependencies: ObservableObject {
     @Published public var topTrailingState: CGSize = .zero
     @Published public var bottomTrailingState: CGSize = .zero
     @Published public var angle: CGFloat = 0
+    @Published public var rotationOverlayState: RotationOverlayState = RotationState.inactive
     @Published public var rotation: CGFloat = 0
     @Published public var isSelected: Bool = false
     

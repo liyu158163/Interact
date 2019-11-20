@@ -26,7 +26,7 @@ public class SpinnableModel<Handle: View>: ObservableObject, RotationModel {
     @Binding public var angle: CGFloat
     @Binding public var rotation: CGFloat
     /// Describes the angular drag state of the rotation handle. 
-    @Published public var gestureState: RotationOverlayState = SpinState.inactive
+    @Binding public var gestureState: RotationOverlayState
     @Binding public var isSelected: Bool
     
     /// Value describing the distance from the top of the view to the rotation handle.
@@ -56,7 +56,7 @@ public class SpinnableModel<Handle: View>: ObservableObject, RotationModel {
             }
         }
         /// `DragGesture`s time value
-        var time: Date? {
+        public var time: Date? {
             switch self {
             case .active(_, let time, _, _):
                 return time
@@ -75,7 +75,7 @@ public class SpinnableModel<Handle: View>: ObservableObject, RotationModel {
             }
         }
         /// Angular velocity is computed from the deltaTheta/deltaTime
-        var angularVelocity: CGFloat {
+        public var angularVelocity: CGFloat {
             switch self {
             case .active(_, _, _, let velocity):
                 return velocity
@@ -85,7 +85,7 @@ public class SpinnableModel<Handle: View>: ObservableObject, RotationModel {
         }
         
         
-        var isActive: Bool {
+        public var isActive: Bool {
             switch self {
             case .active(_ ,_ , _, _):
                 return true
@@ -97,7 +97,7 @@ public class SpinnableModel<Handle: View>: ObservableObject, RotationModel {
     
     
     public func setVelocity() {
-        model.angularVelocity = (gestureState as! SpinState).angularVelocity
+        model.angularVelocity = gestureState.angularVelocity
     }
     
     var radius: CGFloat {
@@ -135,8 +135,8 @@ public class SpinnableModel<Handle: View>: ObservableObject, RotationModel {
     /// Returns the change of angle from the dragging the handle
     public func calculateDeltaTheta(translation: CGSize) -> CGFloat {
         
-        let lastX = radius*sin(angle)
-        let lastY = -radius*cos(angle)
+        let lastX = radius*sin(angle + rotation)
+        let lastY = -radius*cos(angle + rotation)
         
         let newX = lastX + translation.width
         let newY = lastY + translation.height
@@ -150,12 +150,12 @@ public class SpinnableModel<Handle: View>: ObservableObject, RotationModel {
     /// Calculates the angular velocity of the rotational drag
     public func calculateDragAngularVelocity(value: DragGesture.Value) -> CGFloat {
         
-        if (self.gestureState as! SpinState).time == nil {
+        if gestureState.time == nil {
             return 0
         }
         
-        let deltaA = self.calculateDeltaTheta(translation: value.translation)-self.gestureState.deltaTheta
-        let deltaT = CGFloat((self.gestureState as! SpinState).time!.timeIntervalSince(value.time))
+        let deltaA = self.calculateDeltaTheta(translation: value.translation)-gestureState.deltaTheta
+        let deltaT = CGFloat(gestureState.time!.timeIntervalSince(value.time))
         let aV = -vScale*deltaA/deltaT
         
         return aV
@@ -164,7 +164,7 @@ public class SpinnableModel<Handle: View>: ObservableObject, RotationModel {
     // MARK: Timer
     
     var timer = Timer()
-    var refreshRate: Double = 0.005
+    var refreshRate: Double = 0.01
     
     
     func start() {
@@ -187,9 +187,9 @@ public class SpinnableModel<Handle: View>: ObservableObject, RotationModel {
     
     public var overlay: some View {
         ZStack {
-            handle(isSelected, (gestureState as! SpinState).isActive)
+            handle(isSelected, gestureState.isActive)
         }.offset(rotationalOffset)
-            .gesture(
+            .simultaneousGesture(
                 DragGesture()
                     .onChanged({ (value) in
                         self.reset()
@@ -200,11 +200,12 @@ public class SpinnableModel<Handle: View>: ObservableObject, RotationModel {
                     .onEnded({ (value) in
                         
                         self.angle += self.calculateDeltaTheta(translation: value.translation)
-                        if abs( (self.gestureState as! SpinState).angularVelocity ) > self.threshold {
+                        if abs( self.gestureState.angularVelocity ) > self.threshold {
                             self.start()
-                            self.setVelocity()
+                            self.model.angularVelocity = self.gestureState.angularVelocity
                         }
                         self.gestureState = SpinState.inactive
+                        
                     })
         )
     }
@@ -225,6 +226,7 @@ public class SpinnableModel<Handle: View>: ObservableObject, RotationModel {
         self._topTrailState = dependencies.projectedValue.topTrailingState
         self._bottomTrailState = dependencies.projectedValue.bottomTrailingState
         self._angle = dependencies.projectedValue.angle
+        self._gestureState = dependencies.projectedValue.rotationOverlayState
         self._rotation = dependencies.projectedValue.rotation
         self._isSelected = dependencies.projectedValue.isSelected
         self.model = model

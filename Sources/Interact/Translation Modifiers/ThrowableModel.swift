@@ -58,7 +58,7 @@ public class ThrowableModel: ObservableObject, TranslationModel {
             }
         }
         /// Velocity calculated from the difference in translations divided by the difference in times from the old state to the current state to the ne
-        var velocity: CGSize {
+        public var velocity: CGSize {
             switch self {
             case .active(_, _, let velocity):
                 return velocity
@@ -67,7 +67,7 @@ public class ThrowableModel: ObservableObject, TranslationModel {
             }
         }
         /// The magnitude of the velocity vector, used in comparison with the `threshold` value, if greater then throw object  if less then dont.
-        var velocityMagnitude: CGFloat {
+        public var velocityMagnitude: CGFloat {
             switch self {
             case .active(_, _, let v):
                 return sqrt(v.width*v.width+v.height*v.height)
@@ -159,7 +159,7 @@ public class ThrowableModel: ObservableObject, TranslationModel {
                 
                 self.offset.width += value.translation.width
                 self.offset.height -= value.translation.height
-                if (self.gestureState as! ThrowState).velocityMagnitude > self.threshold {
+                if self.gestureState.velocityMagnitude > self.threshold {
                     
                     self.start()
                     self.setVelocity()
@@ -183,7 +183,7 @@ public class ThrowableModel: ObservableObject, TranslationModel {
             
             self.offset.width += value.translation.width
             self.offset.height += value.translation.height
-            if (self.gestureState as! ThrowState).velocityMagnitude > self.threshold {
+            if self.gestureState.velocityMagnitude > self.threshold {
                 
                 self.start()
                 self.setVelocity()

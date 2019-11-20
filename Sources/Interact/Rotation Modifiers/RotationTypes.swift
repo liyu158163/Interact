@@ -12,7 +12,10 @@ import SwiftUI
 @available(iOS 13.0, macOS 10.15, watchOS 6.0 , tvOS 13.0, *)
 public protocol RotationOverlayState {
     
+    var time: Date? { get }
     var deltaTheta: CGFloat { get }
+    var angularVelocity: CGFloat { get }
+    var isActive: Bool { get }
     
 }
 
@@ -22,6 +25,7 @@ public protocol RotationModel: ObservableObject {
     
     var angle: CGFloat { get set }
     var gestureState: RotationOverlayState { get set }
+    var rotation: CGFloat { get set }
     var isSelected: Bool { get set }
     associatedtype Overlay: View
     var overlay: Overlay { get }
