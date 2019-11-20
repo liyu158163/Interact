@@ -209,8 +209,8 @@ struct ResizableExamples: View {
 ### Important Caveats
 
 * If using a resizable modifiers do not use `.frame` or that will mess up the geometry of the view. Instead place your frame size within the `initialSize` parameter of `resizable`. 
-* Do not add a `rotatable` or `spinnable` modifier with a `resizable` modifier, instead use the `resizable` modifier with built in support for rotation and spinning. 
-* If you need to add dragging or throwing functionallity add this **after** you have added the resizing modifier.
+* Do not add a `rotatable`,  `spinnable`, `draggable`, or `throwable` modifier with a `resizable` modifier, instead use the `resizable` modifier with built in support for rotation, spinning, dragging and throwing. 
+
 
 This only applies to `resizable` modifiers. 
 
@@ -229,61 +229,6 @@ This only applies to `resizable` modifiers.
 ```
 
 
-**Example of What To Do** 
-    
-```Swift
-    struct MyCoolResizableAndDraggableView: View {
-       
-        var body: some View {
-            Rectangle()
-            .foregroundColor(.green)
-            .overlay(Text("Resizable and Spinnable"))
-            .resizable(initialSize: CGSize(width: 300, height: 250),
-                       resizingHandle: { (isSelected, isActive) in
-                            Rectangle()
-                            .foregroundColor(isActive ? .orange : .blue)
-                            .frame(width: 30, height: 30)
-                            .opacity(isSelected ? 1 : 0)
-                     },
-                       rotation: .spinnable(handle: { (isSelected, isActive) in
-                            Rectangle()
-                            .foregroundColor(isActive ? .purple : .yellow)
-                            .frame(width: 30, height: 30)
-                            .opacity(isSelected ? 1 : 0)
-                       }))
-            .draggable()
-        }
-    }
-    
-```
-
-**Don't Do This!!!** 
-
-```Swift
-        struct MyStupidBrokenView: View {
-            
-            
-            var body: some View {
-                Rectangle()
-                .frame(width: 100, height: 200)
-                .draggable
-                .resizable(initialSize: CGSize(width: 300, height: 250),
-                resizingHandle: { (isSelected, isActive) in
-                    Rectangle()
-                    .foregroundColor(isActive ? .orange : .blue)
-                    .frame(width: 30, height: 30)
-                    .opacity(isSelected ? 1 : 0)
-            },
-                rotation: .spinnable(handle: { (isSelected, isActive) in
-                    Rectangle()
-                    .foregroundColor(isActive ? .purple : .yellow)
-                    .frame(width: 30, height: 30)
-                    .opacity(isSelected ? 1 : 0)
-                }))
-            }
-        }
-        
-```
 
 
 
@@ -291,12 +236,7 @@ This only applies to `resizable` modifiers.
 ## TODO 
 
 * Add in more customizations such as limiting dragging to a single dimension or to a single path. 
-* Add in more advanced physics, I have multiple models ready but just need to run more tests before they can be included.
-  * gravity
-  * Air resistance 
-  * boundary collisions
-  * Custom force fields
-* Add preference keys to get the bounds of each view to take part in collisions 
+
 
 
 

@@ -34,14 +34,15 @@ public struct ResizableRotatable<ResizingHandle: View, RotationHandle: View, R: 
         
         content
             .frame(width: resizableModel.size.width, height: resizableModel.size.height)
+            .onTapGesture {
+                    withAnimation(.easeIn(duration: 0.2)) {
+                        self.resizableModel.isSelected = !self.resizableModel.isSelected
+                    }
+            }
             .simultaneousGesture(dragGestureModel.gesture)
             .scaleEffect(magnificationGestureModel.magnification)
             .applyResizingScales(model: resizableModel)
-            .onTapGesture {
-                withAnimation(.easeIn(duration: 0.2)) {
-                    self.rotationModel.isSelected = !self.rotationModel.isSelected
-                }
-        }
+            
         .simultaneousGesture(magnificationGestureModel.magnificationGesture)
         .overlay(resizableModel.overlay)
         .rotationEffect(Angle(radians: Double(currentAngle)))

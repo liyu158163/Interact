@@ -36,7 +36,7 @@ public class AngularVelocity: AngularVelocityModel {
 
 
 /// # Angular Velocity With Friction
-/// It just houses the velocity.
+/// Has a friction value that acts reduces the angular velocity each refresh. 
 @available(iOS 13.0, macOS 10.15, watchOS 6.0 , tvOS 13.0, *)
 public class FrictionalAngularVelocity: AngularVelocityModel {
     public var angularVelocity: CGFloat = 0
