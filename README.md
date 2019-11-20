@@ -49,7 +49,7 @@ Interact as a default requires the SwiftUI Framework to be operational, as such 
 **Latest Features** 
 
 * macOS is now officially supported 
-* Customize resizing and rotation handles with easy access to the i`sSelected` and `isActive` properties.
+* Customize resizing and rotation handles with easy access to the `isSelected` and `isActive` properties.
 * Add in any custom physics environment for both the `spinnable` and `throwable` modifiers. 
 * Specify a threshold value for both the `spinnable` and `throwable` modifiers that prevents small velocities from being registered upon gesture end. 
  
