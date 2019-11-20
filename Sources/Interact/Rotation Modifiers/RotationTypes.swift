@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  RotationTypes.swift
 //  
 //
 //  Created by Kieran Brown on 11/19/19.

@@ -1,5 +1,5 @@
 //
-//  TranslationTypes.swift
+//  DragTypes.swift
 //  
 //
 //  Created by Kieran Brown on 11/19/19.
@@ -21,7 +21,7 @@ public protocol TranslationState {
 }
 
 @available(iOS 13.0, macOS 10.15, watchOS 6.0 , tvOS 13.0, *)
-public protocol TranslationModel: ObservableObject {
+public protocol DragModel: ObservableObject {
    
     
     var offset: CGSize { get set }
@@ -32,7 +32,7 @@ public protocol TranslationModel: ObservableObject {
 }
 
 @available(iOS 13.0, macOS 10.15, watchOS 6.0 , tvOS 13.0, *)
-public enum TranslationType {
+public enum DragType {
     case drag
     case throwable(model: VelocityModel, threshold: CGFloat)
 }

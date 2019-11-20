@@ -13,7 +13,7 @@ import SwiftUI
 /// The `Model` is any type conforming to the `VelocityModel` protocol. Create your own custom `VelocityModel`
 /// to add in additional calculations such as gravity, air resistance or some wacky forcefield.
 @available(iOS 13.0, macOS 10.15, watchOS 6.0 , tvOS 13.0, *)
-public class ThrowableModel: ObservableObject, TranslationModel {
+public class ThrowableModel: ObservableObject, DragModel {
     
     // MARK: State
     @Binding public var gestureState: TranslationState

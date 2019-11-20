@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 
 @available(iOS 13.0, macOS 10.15, watchOS 6.0 , tvOS 13.0, *)
-struct ResizableScales<Handle: View>: ViewModifier {
+struct ResizableOverlayScaleEffects<Handle: View>: ViewModifier {
     
     
     // MARK: State
@@ -56,7 +56,7 @@ struct ResizableScales<Handle: View>: ViewModifier {
 @available(iOS 13.0, macOS 10.15, watchOS 6.0 , tvOS 13.0, *)
 extension View {
     func applyResizingScales<Handle: View>(model: ResizableOverlayModel<Handle>) -> some View {
-        self.modifier(ResizableScales(model: model))
+        self.modifier(ResizableOverlayScaleEffects(model: model))
     }
 }
 
