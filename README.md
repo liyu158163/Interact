@@ -63,6 +63,7 @@ Interact as a default requires the SwiftUI Framework to be operational, as such 
 2. In Xcode -> File -> Swift Packages -> Add Package Dependencies 
 3. Paste the URL Into the box
 4. Specify the minimum version number (This is new so 1.0.0 and greater will work).
+5. Put `import Interact` Underneath your other import statements.
 
 
 
