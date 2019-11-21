@@ -108,7 +108,6 @@ public class DragGestureModel: DragModel, ObservableObject {
             
             self.offset.width += value.translation.width
             self.offset.height += value.translation.height
-            i
             self.gestureState = DragState.inactive
         }
     }
