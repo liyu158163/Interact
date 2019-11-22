@@ -2,8 +2,10 @@
 
  <p align="center"><img src="https://github.com/kieranb662/Interact/blob/master/InteractAllTypes.gif" width="800"> </p>
  
- If you would like to show your support for my work then please consider donating to my patreon
+ If you would like to show your support for my work then please consider donating to my patreon.
+ 
 <a href="https://www.patreon.com/bePatron?u=27262269" data-patreon-widget-type="become-patron-button">Become a Patron!</a>
+
 
 Interact is a library for easily adding dynamic interactions with any SwiftUI View. 
 
