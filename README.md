@@ -11,7 +11,10 @@ Have you ever wanted to move one of the views while inside the app? What about a
 
 If you like this library then check out [PartitionKit](https://github.com/kieranb662/PartitionKit).
 
-I am currently for hire and have a huge library of responsive components not released anywhere, hire me and you get access. If interested send an email to kb6627500@gmail.com .
+I am currently for hire and have a huge library of responsive components not released anywhere, hire me and you get access. If interested send an email to kb6627500@gmail.com. 
+
+If you would like to show your support for my work then please consider donating to my patreon
+<a href="https://www.patreon.com/bePatron?u=27262269" data-patreon-widget-type="become-patron-button">Become a Patron!</a>
 
 
 
