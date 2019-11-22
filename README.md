@@ -2,7 +2,7 @@
 
  <p align="center"><img src="https://github.com/kieranb662/Interact/blob/master/InteractAllTypes.gif" width="800"> </p>
  
- If you would like to show your support for my work then please consider donating to my patreon.
+I am currenty unemployed and have received no responses to any of my applications, I would like to continue making libraries and components to share with everyone but will need your support. Please consider donating to help a fellow developer help you.
 <a href="https://www.patreon.com/bePatron?u=27262269" data-patreon-widget-type="become-patron-button">Become a Patron!</a>
 
 
