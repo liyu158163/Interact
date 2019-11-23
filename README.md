@@ -75,7 +75,7 @@ Interact as a default requires the SwiftUI Framework to be operational, as such 
 
 In a new macOS project replace the ContentView.swift file with the following code snippet. This should give you a decent basis for working with all the awesome features Interact has to offer.
 
-Click on the thumbnai below to watch a 1 minute youtube video showing you how to add interact to a project and also how to make the example gif. 
+Click on the thumbnail below to watch a 1 minute youtube video showing you how to add interact to a project and also how to make the example gif. 
 
 [![Tutorial Video: How To Use Interact](https://img.youtube.com/vi/HYUvosWByoI/0.jpg)](https://www.youtube.com/watch?v=HYUvosWByoI)
 
