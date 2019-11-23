@@ -67,7 +67,7 @@ Interact as a default requires the SwiftUI Framework to be operational, as such 
 4. Specify the minimum version number (This is new so 1.0.0 and greater will work).
 5. Put `import Interact` Underneath your other import statements.
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/HYUvosWByoI" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+[![Tutorial Video: How To Use Interact](https://img.youtube.com/vi/HYUvosWByoI/0.jpg)](https://www.youtube.com/watch?v=HYUvosWByoI)
 
 ## How To Use 
 
