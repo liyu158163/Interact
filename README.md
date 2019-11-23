@@ -67,16 +67,6 @@ Interact as a default requires the SwiftUI Framework to be operational, as such 
 4. Specify the minimum version number (This is new so 1.0.0 and greater will work).
 5. Put `import Interact` Underneath your other import statements.
 
-[![Tutorial Video: How To Use Interact](https://img.youtube.com/vi/HYUvosWByoI/0.jpg)](https://www.youtube.com/watch?v=HYUvosWByoI)
-
-## How To Use 
-
-
-1. Pick a view that you would like to add dynamic interaction too. 
-2. Pick one of 5 interactive modifiers 
-3. Profit 💰💰💰
-
-
 
 ## Examples 
 
@@ -84,6 +74,10 @@ Interact as a default requires the SwiftUI Framework to be operational, as such 
 ### How To Make The Example Gif 
 
 In a new macOS project replace the ContentView.swift file with the following code snippet. This should give you a decent basis for working with all the awesome features Interact has to offer.
+
+Click on the thumbnai below to watch a 1 minute youtube video showing you how to add interact to a project and also how to make the example gif. 
+
+[![Tutorial Video: How To Use Interact](https://img.youtube.com/vi/HYUvosWByoI/0.jpg)](https://www.youtube.com/watch?v=HYUvosWByoI)
 
 
 ```Swift
