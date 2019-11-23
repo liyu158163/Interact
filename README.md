@@ -79,6 +79,143 @@ Interact as a default requires the SwiftUI Framework to be operational, as such 
 
 ## Examples 
 
+
+### How To Make The Example Gif 
+
+In a new macOS project replace the ContentView.swift file with the following code snippet. This should give you a decent basis for working with all the awesome features Interact has to offer.
+
+
+```Swift
+import SwiftUI
+import Interact
+
+
+struct ContentView: View {
+    
+    func getBlueToPurpleHandle(_ isSelected: Bool, _ isActive: Bool) -> some View {
+        Circle()
+        .foregroundColor(isActive ? .purple : .blue)
+        .frame(width: 30, height: 30)
+        .opacity(isSelected ? 1 : 0)
+    }
+    
+    func getOrangeToRedHandle(_ isSelected: Bool, _ isActive: Bool) -> some View {
+        Circle()
+        .foregroundColor(isActive ? .red : .orange)
+        .frame(width: 30, height: 30)
+        .opacity(isSelected ? 1 : 0)
+    }
+    
+    
+    var body: some View {
+        VStack{
+            Text("Interact - https://github.com/kieranb662/Interact").bold().throwable(initialSize: CGSize(width: 500, height: 50)).frame(width: 500, height: 50)
+            
+            Divider()
+            
+            HStack {
+                Rectangle()
+                    .foregroundColor(.orange)
+                    .overlay(Text("Draggable"))
+                .draggable(initialSize: CGSize(width: 100, height: 100))
+                
+                Divider()
+                
+                Rectangle()
+                    .foregroundColor(.blue)
+                    .overlay(Text("Throwable"))
+                .throwable(initialSize: CGSize(width: 100, height: 100))
+                
+                Divider()
+                
+                Circle()
+                    .foregroundColor(.purple)
+                    .overlay(Text("Throwable With Physics").multilineTextAlignment(.center))
+                .throwable(initialSize: CGSize(width: 100, height: 100), model: AirResistanceModel(), threshold: 0)
+                
+                
+                
+            }
+            
+            Divider()
+            
+            HStack {
+                Ellipse()
+                    .foregroundColor(.orange)
+                .overlay(Text("Rotatable"))
+                    .rotatable(initialSize: CGSize(width: 200, height: 100)) { (isSelected, isActive)  in
+                        self.getBlueToPurpleHandle(isSelected, isActive)
+                }
+                
+                Divider()
+                
+                Rectangle()
+                    .foregroundColor(.blue)
+                .overlay(Text("Spinnable"))
+                    .spinnable(initialSize: CGSize(width: 100, height: 100)) { (isSelected, isActive)  in
+                    self.getOrangeToRedHandle(isSelected, isActive)
+                }
+                
+                Divider()
+                
+                Ellipse()
+                    .foregroundColor(.purple)
+                    .overlay(Text("Spinnable With Friction").multilineTextAlignment(.center))
+                    .spinnable(initialSize: CGSize(width: 200, height: 100), model: FrictionalAngularVelocity()) { (isSelected, isActive)  in
+                    self.getBlueToPurpleHandle(isSelected, isActive)
+                }
+            }
+            
+            
+            Divider()
+            
+            HStack {
+                Rectangle()
+                    .foregroundColor(.orange)
+                .overlay(Text("Resizable"))
+                    .resizable(initialSize: CGSize(width: 100, height: 100)) { (isSelected, isActive)  in
+                        self.getBlueToPurpleHandle(isSelected, isActive)
+                }
+                
+                Divider()
+                
+                Rectangle()
+                    .foregroundColor(.blue)
+                    .overlay(Text("Resizable, Draggable and Rotatable").multilineTextAlignment(.center))
+                    .resizable(initialSize: CGSize(width: 100, height: 100), resizingHandle: { (isSelected, isActive) in
+                        self.getOrangeToRedHandle(isSelected, isActive)
+                    }, rotationType: .normal(handle: { (isSelected, isActive) in
+                        self.getBlueToPurpleHandle(isSelected, isActive)
+                    }), dragType: .drag)
+                    
+                
+                Divider()
+                
+                Ellipse()
+                    .foregroundColor(.purple)
+                    .overlay(Text("Everything You Can Think Of").multilineTextAlignment(.center).allowsHitTesting(false))
+                    .resizable(initialSize: CGSize(width: 100, height: 100), resizingHandle: { (isSelected, isActive) in
+                        self.getBlueToPurpleHandle(isSelected, isActive)
+                    }, rotationType: .spinnable(model: FrictionalAngularVelocity(), handle: { (isSelected, isActive)  in
+                        self.getOrangeToRedHandle(isSelected, isActive)
+                    }), dragType: .throwable(model: AirResistanceModel()))
+            }
+            
+            
+            
+            
+        }.frame(minWidth: 0, idealWidth: 1200, maxWidth: .infinity, minHeight: 0, idealHeight: 1200, maxHeight: .infinity)
+    }
+}
+
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+```
+
 ### Draggable And Throwable 
 
 *Throwable* here means that the view can be dragged and thrown, not throwable like an error.
