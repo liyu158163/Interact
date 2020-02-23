@@ -1,5 +1,7 @@
 # Interact - SwiftUI Library For Dynamic Interaction
 
+Im currently looking for full time employment, checkout my [linkedin profile](https://www.linkedin.com/in/kieran-brown-56a0a31a3/). I work at a very fast pace and can switch tasks at a moments notice, so you will never need to worry about pushing back deadlines again. If interested call or text me at 8456627500. 
+
 
  <p align="center"><img src="https://github.com/kieranb662/Interact/blob/master/InteractAllTypes.gif" width="800"> </p>
  
